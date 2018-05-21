@@ -33,6 +33,30 @@ const data = [
     name: 'Angela Stoneworth',
     job: 'Sales Rep',
     location: 'UK'
+  },
+  {
+    id: 5,
+    name: 'Jack Fire',
+    job: 'Developer',
+    location: 'USA'
+  },
+  {
+    id: 6,
+    name: 'Donny Doe',
+    job: 'Sales Manager',
+    location: 'EU'
+  },
+  {
+    id: 7,
+    name: 'Ruby Reynolds',
+    job: 'Technical Manager',
+    location: 'UK'
+  },
+  {
+    id: 8,
+    name: 'Lenard Bonaparte',
+    job: 'Sales Rep',
+    location: 'EU'
   }
 ]
 
@@ -41,8 +65,8 @@ class Demo extends React.Component {
     return (
       <Table
         data={data}
-        pageSize={2}
-        pageSizeOptions={[8, 16, 24, 48]}
+        pageSize={6}
+        pageSizeOptions={[6, 12, 24, 48]}
         render={({
           columns,
           rows,
@@ -51,6 +75,7 @@ class Demo extends React.Component {
           pageData,
           filter: { isFiltered, filterRow, filterColumn },
           paging: {
+            pageSizeOptions,
             totalNumberOfPages,
             hasPrevPage,
             hasNextPage,
@@ -61,30 +86,10 @@ class Demo extends React.Component {
             handleNextPage,
             handlePrevPage,
             handlePageChange,
-            handlePageChangeBlur
+            handlePageChangeBlur,
+            handlePageSizeChange
           }
         }) => {
-          console.log('render prop data', {
-            columns,
-            rows,
-            accessors,
-            setAccessors,
-            pageData,
-            filter: { isFiltered, filterRow, filterColumn },
-            totalNumberOfPages,
-            paging: {
-              hasPrevPage,
-              hasNextPage,
-              total,
-              pageSize,
-              currentPage,
-              selectedPage,
-              handleNextPage,
-              handlePrevPage,
-              handlePageChange,
-              handlePageChangeBlur
-            }
-          })
           return (
             <TableContainer>
               <TableHeaderRow setAccessors={setAccessors}>
@@ -93,7 +98,8 @@ class Demo extends React.Component {
                 <TableHeader accessor="location">Location</TableHeader>
               </TableHeaderRow>
               <TableDataRow
-                render={() =>
+                rows={rows}
+                render={rows =>
                   rows.map((row, index) => (
                     <div className="tr" key={index}>
                       {row.map(column => (
@@ -135,6 +141,16 @@ class Demo extends React.Component {
                         value={selectedPage}
                       />
                       <p> of {totalNumberOfPages}</p>
+                    </div>
+
+                    <div>
+                      <select onChange={handlePageSizeChange} value={pageSize}>
+                        {pageSizeOptions.map(pageSize => (
+                          <option key={pageSize} value={pageSize}>
+                            {pageSize} rows
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <button onClick={handleNextPage} disabled={!hasNextPage}>
                       Next Page

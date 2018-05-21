@@ -30,7 +30,7 @@ export class TableHeader extends React.Component {
 
 export class TableDataRow extends React.Component {
   render() {
-    return this.props.render()
+    return this.props.render(this.props.rows)
   }
 }
 
@@ -57,7 +57,8 @@ export class Table extends React.Component {
       total: this.props.data.length,
       pageSize: this.props.pageSize,
       currentPage: this.props.currentPage,
-      selectedPage: this.props.currentPage
+      selectedPage: this.props.currentPage,
+      pageSizeOptions: this.props.pageSizeOptions
     }
   }
 
@@ -120,10 +121,13 @@ export class Table extends React.Component {
 
     this.setState(state => {
       if (state.paging.currentPage > 1) {
+        const currentPage = state.paging.currentPage - 1
+
         return {
           paging: {
             ...state.paging,
-            currentPage: state.paging.currentPage - 1
+            selectedPage: currentPage,
+            currentPage
           }
         }
       }
@@ -139,10 +143,13 @@ export class Table extends React.Component {
       } = state
       const hasNextPage = currentPage < Math.ceil(total / pageSize)
       if (hasNextPage) {
+        const currentPage = state.paging.currentPage + 1
+
         return {
           paging: {
             ...state.paging,
-            currentPage: state.paging.currentPage + 1
+            selectedPage: currentPage,
+            currentPage
           }
         }
       }
@@ -201,6 +208,17 @@ export class Table extends React.Component {
     })
   }
 
+  handlePageSizeChange = e => {
+    const pageSize = e.target.value
+
+    this.setState(state => ({
+      paging: {
+        ...state.paging,
+        pageSize
+      }
+    }))
+  }
+
   render() {
     return this.props.render({
       ...this.state,
@@ -217,7 +235,8 @@ export class Table extends React.Component {
         handleNextPage: this.handleNextPage,
         handlePrevPage: this.handlePrevPage,
         handlePageChange: this.handlePageChange,
-        handlePageChangeBlur: this.handlePageChangeBlur
+        handlePageChangeBlur: this.handlePageChangeBlur,
+        handlePageSizeChange: this.handlePageSizeChange
       }
     })
   }
