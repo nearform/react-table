@@ -2,14 +2,10 @@
   "name": "react-nf-table",
   "version": "1.0.0",
   "description": "react-nf-table React component",
+  "private": true,
   "main": "lib/index.js",
   "module": "es/index.js",
-  "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
-  ],
+  "files": ["css", "es", "lib", "umd"],
   "scripts": {
     "build": "nwb build-react-component",
     "clean": "nwb clean-module && nwb clean-demo",
@@ -23,15 +19,20 @@
     "react": "16.x"
   },
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^4.1.1",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.34.1",
+    "eslint-plugin-import": "^2.6.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0",
     "nwb": "0.21.x",
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
   },
   "author": "",
   "homepage": "",
-  "license": "MIT",
+  "license": "",
   "repository": "",
-  "keywords": [
-    "react-component"
-  ]
+  "keywords": []
 }
