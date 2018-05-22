@@ -71,9 +71,8 @@ class Demo extends React.Component {
           columns,
           rows,
           accessors,
-          setAccessors,
-          pageData,
-          filter: { isFiltered, filterRow, filterColumn },
+          setHeaderData,
+          sorting,
           paging: {
             pageSizeOptions,
             totalNumberOfPages,
@@ -92,10 +91,16 @@ class Demo extends React.Component {
         }) => {
           return (
             <TableContainer>
-              <TableHeaderRow setAccessors={setAccessors}>
-                <TableHeader accessor="name">Name</TableHeader>
-                <TableHeader accessor="job">Job</TableHeader>
-                <TableHeader accessor="location">Location</TableHeader>
+              <TableHeaderRow setHeaderData={setHeaderData}>
+                <TableHeader accessor="name" sorting={sorting} sort>
+                  Name
+                </TableHeader>
+                <TableHeader accessor="job" sorting={sorting} sort>
+                  Job
+                </TableHeader>
+                <TableHeader accessor="location" sorting={sorting}>
+                  Location
+                </TableHeader>
               </TableHeaderRow>
               <TableDataRow
                 rows={rows}
@@ -166,4 +171,9 @@ class Demo extends React.Component {
   }
 }
 
-ReactDOM.render(<Demo />, document.querySelector('#demo'))
+ReactDOM.render(
+  <React.StrictMode>
+    <Demo />
+  </React.StrictMode>,
+  document.querySelector('#demo')
+)
