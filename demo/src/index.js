@@ -73,6 +73,7 @@ class Demo extends React.Component {
           rows,
           setHeaderData,
           sorting,
+          handleFilter,
           paging: {
             pageSizeOptions,
             totalNumberOfPages,
@@ -95,58 +96,63 @@ class Demo extends React.Component {
                 <TableHeader accessor="name" sortable filterable>
                   Name
                 </TableHeader>
-                <TableHeader accessor="job" sortable>
+                <TableHeader accessor="job" sortable filterable>
                   Job
                 </TableHeader>
-                <TableHeader accessor="location">Location</TableHeader>
+                <TableHeader accessor="location" filterable>
+                  Location
+                </TableHeader>
               </TableHeaderRow>
               <TableFilterRow>
-                {columns.map((column, index) => {
-                  return (
-                    <div className="filter" key={column.accessor}>
-                      {column.accessor === 'location' ? (
-                        <select
-                          style={{ width: '100%', height: '100%' }}
-                          onChange={e => {
-                            console.log('changed with value ', e.target.value)
-                          }}
-                        >
-                          <option>{`Filter by ${column.label}`}</option>
-                          <option>USA</option>
-                          <option>EU</option>
-                          <option>UK</option>
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          onChange={e => {
-                            e.preventDefault()
+                {columns =>
+                  columns.map((column, index) => {
+                    return column.filterable ? (
+                      <div className="filter" key={column.accessor}>
+                        {column.accessor === 'location' ? (
+                          <select
+                            onChange={e => {
+                              handleFilter(column.accessor, e.target.value)
+                            }}
+                          >
+                            <option />
+                            <option value="USA">USA</option>
+                            <option value="EU">EU</option>
+                            <option value="UK">UK</option>
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            onChange={e => {
+                              e.preventDefault()
 
-                            console.log('changed with value ', e.target.value)
-                          }}
-                          placeholder={`Filter for ${column.label}`}
-                          style={{ width: '100%', padding: '7px' }}
-                        />
-                      )}
-                    </div>
-                  )
-                })}
+                              handleFilter(column.accessor, e.target.value)
+                            }}
+                            style={{ width: '100%', padding: '7px' }}
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="filter" />
+                    )
+                  })
+                }
               </TableFilterRow>
               <TableDataRow
                 render={rows =>
                   rows.map((row, index) => (
-                    <div className="tr" key={index}>
-                      {row.map(column => (
-                        <div
-                          key={`${column.id}-${column.accessor}`}
-                          className="td"
-                          style={{ justifyContent: 'center' }}
-                        >
-                          <span>
-                            <a>{column.data}</a>
-                          </span>
-                        </div>
-                      ))}
+                    <div className="tr hover" key={index}>
+                      {row &&
+                        row.map(column => (
+                          <div
+                            key={`${column.id}-${column.accessor}`}
+                            className="td"
+                            style={{ justifyContent: 'center' }}
+                          >
+                            <span>
+                              <a>{column.data}</a>
+                            </span>
+                          </div>
+                        ))}
                     </div>
                   ))
                 }
@@ -154,10 +160,12 @@ class Demo extends React.Component {
               <TableFooter
                 render={() => (
                   <div
+                    className="footer"
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      padding: '0.5em 0'
                     }}
                   >
                     <button onClick={handlePrevPage} disabled={!hasPrevPage}>

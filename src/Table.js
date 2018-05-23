@@ -23,39 +23,33 @@ export function TableHeaderRow(props) {
 }
 class TableHeaderRowWithData extends React.Component {
   state = {
-    columns: [],
-    shouldUpdateParent: false
+    columns: React.Children.map(this.props.children, ({ props }) => ({
+      accessor: props.accessor,
+      label: props.children,
+      sortable: props.sortable || false,
+      filterable: props.filterable || false
+    })),
+    shouldUpdateParent: true
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (!prevState.columns.length) {
-      console.log('calculating new getDerivedStateFromProps')
-      const { children } = nextProps
-
-      const computedState = {
-        shouldUpdateParent: true,
-        columns: React.Children.map(children, ({ props }) => ({
-          accessor: props.accessor,
-          label: props.children,
-          sortable: props.sortable || false,
-          filterable: props.filterable || false
-        }))
-      }
-      console.log('new derived state value', computedState)
-      return computedState
-    }
-
-    return null
+  setParentData = () => {
+    this.setState(
+      state => ({
+        shouldUpdateParent: false
+      }),
+      this.props.setHeaderData(this.state)
+    )
   }
 
   componentDidMount() {
     if (this.state.shouldUpdateParent) {
-      this.setState(
-        state => ({
-          shouldUpdateParent: false
-        }),
-        this.props.setHeaderData(this.state)
-      )
+      this.setParentData()
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.shouldUpdateParent) {
+      this.setParentData()
     }
   }
 
@@ -79,11 +73,9 @@ export class TableHeader extends React.Component {
 
           return (
             <div
-              className="td"
-              style={{
-                ...styles,
-                cursor: sortable ? 'pointer' : 'not-allowed'
-              }}
+              className={`td ${sortable ? 'sortable' : 'no-sortable'} ${
+                isSorting ? (isSorting.asc ? 'asc' : 'desc') : ''
+              }`}
               {...sortable && {
                 onClick: e => {
                   const isMultipleSelect = e.shiftKey
@@ -116,7 +108,13 @@ export class TableFooter extends React.Component {
 
 export class TableFilterRow extends React.Component {
   render() {
-    return <div className="tr th">{this.props.children}</div>
+    return (
+      <TableConsumer>
+        {({ columns }) => (
+          <div className="tr">{this.props.children(columns)}</div>
+        )}
+      </TableConsumer>
+    )
   }
 }
 
@@ -146,8 +144,7 @@ export class Table extends React.Component {
 
   setHeaderData = ({ columns }) => {
     this.setState(state => ({
-      columns,
-      filterables: columns.filter(column => column.filterable)
+      columns
     }))
   }
 
@@ -156,7 +153,8 @@ export class Table extends React.Component {
       columns,
       data,
       paging: { currentPage, pageSize },
-      sorting
+      sorting,
+      filtering
     } = this.state
 
     const start = (currentPage - 1) * pageSize
@@ -165,19 +163,26 @@ export class Table extends React.Component {
     const iteratees = sorting.map(({ id }) => id)
     const orders = sorting.map(({ asc }) => (asc ? 'asc' : 'desc'))
 
+    const filterPredicate = filtering.reduce((accum, { id, value }) => {
+      accum[id] = n => n.toLowerCase().includes(value.toLowerCase())
+
+      return accum
+    }, {})
+
+    const orderedRows = _.orderBy(data, iteratees, orders)
+    const filteredRows = _.filter(orderedRows, _.conforms(filterPredicate))
+
     return {
-      rows: _.orderBy(data, iteratees, orders)
-        .slice(start, end)
-        .map((row, index) => {
-          return columns.map(({ accessor }) => {
-            return {
-              id: row.id,
-              row: index,
-              accessor,
-              data: row[accessor]
-            }
-          })
+      rows: filteredRows.slice(start, end).map((row, index) => {
+        return columns.map(({ accessor }) => {
+          return {
+            id: row.id,
+            row: index,
+            accessor,
+            data: row[accessor]
+          }
         })
+      })
     }
   }
 
@@ -347,6 +352,7 @@ export class Table extends React.Component {
       ...this.state,
       setHeaderData: this.setHeaderData,
       handleSort: this.handleSort,
+      handleFilter: this.handleFilter,
       ...this.getComputedRows(),
       ...this.getComputedPagingInfo()
     }
@@ -356,7 +362,7 @@ export class Table extends React.Component {
     const { component, render, children } = this.props
     const props = this.getRenderProps()
     const ctx = this.getRenderProps()
-    console.log('Table State', props)
+
     return (
       <TableProvider value={ctx}>
         {component
