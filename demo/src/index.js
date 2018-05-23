@@ -6,7 +6,8 @@ import {
   TableHeaderRow,
   TableHeader,
   TableDataRow,
-  TableFooter
+  TableFooter,
+  TableFilterRow
 } from '../../src'
 
 const data = [
@@ -73,6 +74,7 @@ class Demo extends React.Component {
           accessors,
           setHeaderData,
           sorting,
+          filtering: { handleFilter },
           paging: {
             pageSizeOptions,
             totalNumberOfPages,
@@ -91,19 +93,48 @@ class Demo extends React.Component {
         }) => {
           return (
             <TableContainer>
-              <TableHeaderRow setHeaderData={setHeaderData}>
-                <TableHeader accessor="name" sorting={sorting} sort>
+              <TableHeaderRow>
+                <TableHeader accessor="name" sort filter>
                   Name
                 </TableHeader>
-                <TableHeader accessor="job" sorting={sorting} sort>
+                <TableHeader accessor="job" sort>
                   Job
                 </TableHeader>
-                <TableHeader accessor="location" sorting={sorting}>
-                  Location
-                </TableHeader>
+                <TableHeader accessor="location">Location</TableHeader>
               </TableHeaderRow>
+              <TableFilterRow>
+                {columns.map((column, index) => {
+                  return (
+                    <div className="filter" key={column}>
+                      {column === 'location' ? (
+                        <select
+                          style={{ width: '100%', height: '100%' }}
+                          onChange={e => {
+                            handleFilter(column, e.target.value)
+                          }}
+                        >
+                          <option>{`-- Filter by ${column} --`}</option>
+                          <option>USA</option>
+                          <option>EU</option>
+                          <option>UK</option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          onChange={e => {
+                            e.preventDefault()
+
+                            handleFilter(column, e.target.value)
+                          }}
+                          placeholder={`Filter for ${column}`}
+                          style={{ width: '100%', padding: '7px' }}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </TableFilterRow>
               <TableDataRow
-                rows={rows}
                 render={rows =>
                   rows.map((row, index) => (
                     <div className="tr" key={index}>
