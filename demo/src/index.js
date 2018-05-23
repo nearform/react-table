@@ -71,10 +71,8 @@ class Demo extends React.Component {
         render={({
           columns,
           rows,
-          accessors,
           setHeaderData,
           sorting,
-          filtering: { handleFilter },
           paging: {
             pageSizeOptions,
             totalNumberOfPages,
@@ -94,10 +92,10 @@ class Demo extends React.Component {
           return (
             <TableContainer>
               <TableHeaderRow>
-                <TableHeader accessor="name" sort filter>
+                <TableHeader accessor="name" sortable filterable>
                   Name
                 </TableHeader>
-                <TableHeader accessor="job" sort>
+                <TableHeader accessor="job" sortable>
                   Job
                 </TableHeader>
                 <TableHeader accessor="location">Location</TableHeader>
@@ -105,15 +103,15 @@ class Demo extends React.Component {
               <TableFilterRow>
                 {columns.map((column, index) => {
                   return (
-                    <div className="filter" key={column}>
-                      {column === 'location' ? (
+                    <div className="filter" key={column.accessor}>
+                      {column.accessor === 'location' ? (
                         <select
                           style={{ width: '100%', height: '100%' }}
                           onChange={e => {
-                            handleFilter(column, e.target.value)
+                            console.log('changed with value ', e.target.value)
                           }}
                         >
-                          <option>{`-- Filter by ${column} --`}</option>
+                          <option>{`Filter by ${column.label}`}</option>
                           <option>USA</option>
                           <option>EU</option>
                           <option>UK</option>
@@ -124,9 +122,9 @@ class Demo extends React.Component {
                           onChange={e => {
                             e.preventDefault()
 
-                            handleFilter(column, e.target.value)
+                            console.log('changed with value ', e.target.value)
                           }}
-                          placeholder={`Filter for ${column}`}
+                          placeholder={`Filter for ${column.label}`}
                           style={{ width: '100%', padding: '7px' }}
                         />
                       )}

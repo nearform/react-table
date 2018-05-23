@@ -23,24 +23,23 @@ export function TableHeaderRow(props) {
 }
 class TableHeaderRowWithData extends React.Component {
   state = {
-    accessors: [],
-    sorts: [],
-    filters: [],
+    columns: [],
     shouldUpdateParent: false
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!prevState.accessors.length) {
+    if (!prevState.columns.length) {
       console.log('calculating new getDerivedStateFromProps')
       const { children } = nextProps
+
       const computedState = {
         shouldUpdateParent: true,
-        accessors: React.Children.map(children, ({ props }) => props.accessor),
-        sorts: React.Children.map(children, ({ props }) => props.sort || false),
-        filters: React.Children.map(
-          children,
-          ({ props }) => props.filter || false
-        )
+        columns: React.Children.map(children, ({ props }) => ({
+          accessor: props.accessor,
+          label: props.children,
+          sortable: props.sortable || false,
+          filterable: props.filterable || false
+        }))
       }
       console.log('new derived state value', computedState)
       return computedState
@@ -69,40 +68,27 @@ export class TableHeader extends React.Component {
   render() {
     return (
       <TableConsumer>
-        {({ sorting: { sortables, orders, handleSort } }) => {
-          const { accessor } = this.props
-
-          const index = sortables.indexOf(accessor)
-          let styles = {}
-
-          if (index > -1) {
-            const order = orders[index]
-
-            styles =
-              order === 'asc'
-                ? {
-                    borderTop: '4px solid black'
-                  }
-                : order === 'desc'
-                  ? {
-                      borderBottom: '4px solid black'
-                    }
-                  : {}
-          }
+        {({ columns, sorting, handleSort }) => {
+          const { accessor, sortable } = this.props
+          const isSorting = sorting.find(column => column.id === accessor)
+          let styles = isSorting
+            ? isSorting.asc
+              ? { borderTop: '4px solid black' }
+              : { borderBottom: '4px solid black' }
+            : {}
 
           return (
             <div
               className="td"
               style={{
                 ...styles,
-                cursor: this.props.sort ? 'pointer' : 'not-allowed'
+                cursor: sortable ? 'pointer' : 'not-allowed'
               }}
-              onClick={e => {
-                e.preventDefault()
-                const { accessor } = this.props
-                const isMultipleSelect = e.shiftKey
-
-                return handleSort(accessor, isMultipleSelect)
+              {...sortable && {
+                onClick: e => {
+                  const isMultipleSelect = e.shiftKey
+                  return handleSort(accessor, isMultipleSelect)
+                }
               }}
             >
               {this.props.children}
@@ -137,16 +123,9 @@ export class TableFilterRow extends React.Component {
 export class Table extends React.Component {
   state = {
     columns: this.props.columns,
-    accessors: this.props.accessors,
     data: this.props.data,
-    filtering: {
-      filterValues: []
-    },
-    sorting: {
-      orders: [],
-      sortables: [],
-      noSort: []
-    },
+    sorting: [],
+    filtering: [],
     paging: {
       total: this.props.data.length,
       pageSize: this.props.pageSize,
@@ -165,47 +144,40 @@ export class Table extends React.Component {
     pageSizeOptions: [8, 16, 24, 48]
   }
 
-  setHeaderData = ({ accessors, sorts, filters }) => {
+  setHeaderData = ({ columns }) => {
     this.setState(state => ({
-      columns: accessors,
-      accessors,
-      filtering: {
-        ...state.filtering,
-        noFilter: accessors.filter((accessors, index) => !filters[index])
-      },
-      sorting: {
-        ...state.sorting,
-        noSort: accessors.filter((accessor, index) => !sorts[index])
-      }
+      columns,
+      filterables: columns.filter(column => column.filterable)
     }))
   }
 
   getComputedRows = () => {
     const {
+      columns,
       data,
-      accessors,
       paging: { currentPage, pageSize },
-      sorting: { orders, sortables },
-      filtering: { filterValues }
+      sorting
     } = this.state
 
     const start = (currentPage - 1) * pageSize
     const end = start + pageSize
 
-    const filteredData = data.slice(start, end)
-    const sortedDated = _.orderBy(filteredData, sortables, orders)
+    const iteratees = sorting.map(({ id }) => id)
+    const orders = sorting.map(({ asc }) => (asc ? 'asc' : 'desc'))
 
     return {
-      rows: sortedDated.map((row, index) => {
-        return accessors.map(accessor => {
-          return {
-            id: row.id,
-            row: index,
-            accessor,
-            data: row[accessor]
-          }
+      rows: _.orderBy(data, iteratees, orders)
+        .slice(start, end)
+        .map((row, index) => {
+          return columns.map(({ accessor }) => {
+            return {
+              id: row.id,
+              row: index,
+              accessor,
+              data: row[accessor]
+            }
+          })
         })
-      })
     }
   }
 
@@ -217,9 +189,17 @@ export class Table extends React.Component {
     const totalNumberOfPages = Math.ceil(total / pageSize)
 
     return {
-      totalNumberOfPages,
-      hasPrevPage: currentPage > 1,
-      hasNextPage: currentPage !== totalNumberOfPages
+      paging: {
+        ...this.state.paging,
+        totalNumberOfPages,
+        hasPrevPage: currentPage > 1,
+        hasNextPage: currentPage !== totalNumberOfPages,
+        handleNextPage: this.handleNextPage,
+        handlePrevPage: this.handlePrevPage,
+        handlePageChange: this.handlePageChange,
+        handlePageChangeBlur: this.handlePageChangeBlur,
+        handlePageSizeChange: this.handlePageSizeChange
+      }
     }
   }
 
@@ -327,135 +307,48 @@ export class Table extends React.Component {
   }
 
   handleSort = (columnAccessor, multipleSelect) => {
-    const { sorting } = this.state
-
-    if (sorting.noSort.includes(columnAccessor)) {
-      return false
-    }
-
     this.setState(state => {
-      if (multipleSelect) {
-        if (state.sorting.sortables.includes(columnAccessor)) {
-          const index = state.sorting.sortables.indexOf(columnAccessor)
-          const orders = state.sorting.orders
-          const newOrder =
-            orders[index] === '' ? 'asc' : orders[index] === 'asc' ? 'desc' : ''
-          const newSortables =
-            newOrder === 'asc' || newOrder === 'desc' ? columnAccessor : ''
-          // just flip direction
-          return {
-            sorting: {
-              ...state.sorting,
-              sortables: [
-                ...state.sorting.sortables.slice(0, index),
-                newSortables,
-                ...state.sorting.sortables.slice(index + 1)
-              ].filter(i => i),
-              orders: [
-                ...orders.slice(0, index),
-                newOrder,
-                ...orders.slice(index + 1)
-              ].filter(i => i)
-            }
-          }
-        }
+      const { sorting } = state
 
-        return {
-          sorting: {
-            ...state.sorting,
-            sortables: [...state.sorting.sortables, columnAccessor],
-            orders: [...state.sorting.orders, 'asc']
-          }
-        }
-      }
-
-      // not multiple select, only sortable is columnAccessor
-      if (state.sorting.sortables.includes(columnAccessor)) {
-        const [order] = state.sorting.orders
-        const newOrder = order === '' ? 'asc' : order === 'asc' ? 'desc' : ''
-        const newSortables =
-          newOrder === 'asc' || newOrder === 'desc' ? columnAccessor : ''
-        // just flip direction
-        return {
-          sorting: {
-            ...state.sorting,
-            sortables: newSortables ? [newSortables] : [],
-            orders: newOrder ? [newOrder] : []
-          }
-        }
-      }
+      const sortedColumn = sorting.find(sort => sort.id === columnAccessor)
 
       return {
-        sorting: {
-          ...state.sorting,
-          sortables: [columnAccessor],
-          orders: ['asc']
-        }
+        sorting: [
+          ...(multipleSelect
+            ? sorting.filter(({ id }) => id !== columnAccessor)
+            : []),
+          ...(sortedColumn
+            ? { ...sortedColumn, asc: !sortedColumn.asc }
+            : { id: columnAccessor, asc: true })
+        ]
       }
     })
   }
 
-  handleFilter = (columnAccessor, filterValue) => {
-    const { filtering } = this.state
-
-    if (filtering.noFilter.includes(columnAccessor)) {
-      return false
-    }
-
+  handleFilter = (columnAccessor, value) => {
     this.setState(state => {
-      return state.filtering.filterValues
-        ? {
-            filtering: {
-              ...state.filtering,
-              filterValues: [
-                {
-                  name: columnAccessor,
-                  filterValue
-                }
-              ]
-            }
-          }
-        : {
-            filtering: {
-              ...state.filtering,
-              filterValues: state.filtering.filterValues.map(fv => {
-                console.log('fv', fv)
-                if (fv.name === columnAccessor) {
-                  return {
-                    name: columnAccessor,
-                    filterValue
-                  }
-                }
+      const { filtering } = state
 
-                return fv
-              })
-            }
-          }
+      const filteredColumn = filtering.find(({ id }) => id === columnAccessor)
+
+      return {
+        filtering: [
+          ...filtering.filter(({ id }) => id !== columnAccessor),
+          ...(filteredColumn
+            ? { ...filteredColumn, value }
+            : { id: columnAccessor, value })
+        ]
+      }
     })
   }
 
   getRenderProps = () => {
     return {
       ...this.state,
-      ...this.getComputedRows(),
       setHeaderData: this.setHeaderData,
-      sorting: {
-        ...this.state.sorting,
-        handleSort: this.handleSort
-      },
-      filtering: {
-        ...this.state.filtering,
-        handleFilter: this.handleFilter
-      },
-      paging: {
-        ...this.state.paging,
-        ...this.getComputedPagingInfo(),
-        handleNextPage: this.handleNextPage,
-        handlePrevPage: this.handlePrevPage,
-        handlePageChange: this.handlePageChange,
-        handlePageChangeBlur: this.handlePageChangeBlur,
-        handlePageSizeChange: this.handlePageSizeChange
-      }
+      handleSort: this.handleSort,
+      ...this.getComputedRows(),
+      ...this.getComputedPagingInfo()
     }
   }
 
@@ -463,7 +356,7 @@ export class Table extends React.Component {
     const { component, render, children } = this.props
     const props = this.getRenderProps()
     const ctx = this.getRenderProps()
-
+    console.log('Table State', props)
     return (
       <TableProvider value={ctx}>
         {component
