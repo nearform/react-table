@@ -1,14 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {
-  Table,
-  TableContainer,
-  TableHeaderRow,
-  TableHeader,
-  TableDataRow,
-  TableFooter,
-  TableFilterRow
-} from '../../src'
+import { Table, TableHeaderRow, TableHeader } from '../../src'
+import './Table.css'
 
 const data = [
   {
@@ -74,25 +67,23 @@ class Demo extends React.Component {
           setHeaderData,
           sorting,
           handleFilter,
-          paging: {
-            pageSizeOptions,
-            totalNumberOfPages,
-            hasPrevPage,
-            hasNextPage,
-            total,
-            pageSize,
-            currentPage,
-            selectedPage,
-            handleNextPage,
-            handlePrevPage,
-            handlePageChange,
-            handlePageChangeBlur,
-            handlePageSizeChange
-          }
+          totalNumberOfPages,
+          hasPrevPage,
+          hasNextPage,
+          pageSizeOptions,
+          total,
+          pageSize,
+          currentPage,
+          selectedPage,
+          handleNextPage,
+          handlePrevPage,
+          handlePageChange,
+          handlePageChangeBlur,
+          handlePageSizeChange
         }) => {
           return (
-            <TableContainer>
-              <TableHeaderRow>
+            <div className="table">
+              <TableHeaderRow className="tr th">
                 <TableHeader accessor="name" sortable filterable>
                   Name
                 </TableHeader>
@@ -103,10 +94,10 @@ class Demo extends React.Component {
                   Location
                 </TableHeader>
               </TableHeaderRow>
-              <TableFilterRow>
-                {columns =>
-                  columns.map((column, index) => {
-                    return column.filterable ? (
+              <div className="tr">
+                {columns.map(
+                  (column, index) =>
+                    column.filterable ? (
                       <div className="filter" key={column.accessor}>
                         {column.accessor === 'location' ? (
                           <select
@@ -134,73 +125,67 @@ class Demo extends React.Component {
                     ) : (
                       <div className="filter" />
                     )
-                  })
-                }
-              </TableFilterRow>
-              <TableDataRow
-                render={rows =>
-                  rows.map((row, index) => (
-                    <div className="tr hover" key={index}>
-                      {row &&
-                        row.map(column => (
-                          <div
-                            key={`${column.id}-${column.accessor}`}
-                            className="td"
-                            style={{ justifyContent: 'center' }}
-                          >
-                            <span>
-                              <a>{column.data}</a>
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  ))
-                }
-              />
-              <TableFooter
-                render={() => (
-                  <div
-                    className="footer"
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '0.5em 0'
-                    }}
-                  >
-                    <button onClick={handlePrevPage} disabled={!hasPrevPage}>
-                      Prev Page
-                    </button>
-
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <p style={{ marginRight: '1em' }}>Page</p>
-                      <input
-                        type="number"
-                        min={1}
-                        max={totalNumberOfPages}
-                        onChange={handlePageChange}
-                        onBlur={handlePageChangeBlur}
-                        value={selectedPage}
-                      />
-                      <p> of {totalNumberOfPages}</p>
-                    </div>
-
-                    <div>
-                      <select onChange={handlePageSizeChange} value={pageSize}>
-                        {pageSizeOptions.map(pageSize => (
-                          <option key={pageSize} value={pageSize}>
-                            {pageSize} rows
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <button onClick={handleNextPage} disabled={!hasNextPage}>
-                      Next Page
-                    </button>
-                  </div>
                 )}
-              />
-            </TableContainer>
+              </div>
+              <div>
+                {rows.map((row, index) => (
+                  <div className="tr hover" key={index}>
+                    {row &&
+                      row.map(column => (
+                        <div
+                          key={`${column.id}-${column.accessor}`}
+                          className="td"
+                          style={{ justifyContent: 'center' }}
+                        >
+                          <span>
+                            <a>{column.data}</a>
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                ))}
+              </div>
+
+              <footer
+                className="footer"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.5em 0'
+                }}
+              >
+                <button onClick={handlePrevPage} disabled={!hasPrevPage}>
+                  Prev Page
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <p style={{ marginRight: '1em' }}>Page</p>
+                  <input
+                    type="number"
+                    min={1}
+                    max={totalNumberOfPages}
+                    onChange={handlePageChange}
+                    onBlur={handlePageChangeBlur}
+                    value={selectedPage}
+                  />
+                  <p> of {totalNumberOfPages}</p>
+                </div>
+
+                <div>
+                  <select onChange={handlePageSizeChange} value={pageSize}>
+                    {pageSizeOptions.map(pageSize => (
+                      <option key={pageSize} value={pageSize}>
+                        {pageSize} rows
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button onClick={handleNextPage} disabled={!hasNextPage}>
+                  Next Page
+                </button>
+              </footer>
+            </div>
           )
         }}
       />
