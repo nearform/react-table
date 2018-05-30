@@ -67,11 +67,9 @@ export class Table extends React.Component {
 
     const inputValue = Number(e.target.value)
 
-    this.setState(state => {
-      return {
-        selectedPage: inputValue
-      }
-    })
+    this.setState(state => ({
+      selectedPage: inputValue
+    }))
   }
 
   handlePageChangeBlur = e => {
@@ -104,6 +102,8 @@ export class Table extends React.Component {
   }
 
   handlePageSizeChange = e => {
+    e && e.preventDefault()
+
     const pageSize = Number(e.target.value)
 
     this.setState(state => ({
@@ -112,19 +112,21 @@ export class Table extends React.Component {
   }
 
   handleSort = (columnAccessor, multipleSelect) => {
-    this.setState(state => {
+    return this.setState(state => {
       const { sorting } = state
 
       const sortedColumn = sorting.find(sort => sort.id === columnAccessor)
 
       return {
         sorting: [
-          ...(multipleSelect
+          ...(Boolean(multipleSelect)
             ? sorting.filter(({ id }) => id !== columnAccessor)
             : []),
-          ...(sortedColumn
-            ? { ...sortedColumn, asc: !sortedColumn.asc }
-            : { id: columnAccessor, asc: true })
+          ...[
+            Boolean(sortedColumn)
+              ? { ...sortedColumn, asc: !sortedColumn.asc }
+              : { id: columnAccessor, asc: true }
+          ]
         ]
       }
     })
@@ -139,9 +141,11 @@ export class Table extends React.Component {
       return {
         filtering: [
           ...filtering.filter(({ id }) => id !== columnAccessor),
-          ...(filteredColumn
-            ? { ...filteredColumn, value }
-            : { id: columnAccessor, value })
+          ...[
+            filteredColumn
+              ? { ...filteredColumn, value }
+              : { id: columnAccessor, value }
+          ]
         ]
       }
     })
@@ -189,7 +193,7 @@ export class Table extends React.Component {
       rows,
       totalNumberOfPages,
       hasPrevPage: currentPage > 1,
-      hasNextPage: currentPage !== totalNumberOfPages
+      hasNextPage: currentPage !== totalNumberOfPages && filteredRows.length > 0
     }
   }
 
@@ -228,7 +232,7 @@ export class Table extends React.Component {
             : children
               ? typeof children === 'function'
                 ? children(props)
-                : !React.Children.count(children) === 0
+                : React.Children.count(children) !== 0
                   ? React.Children.only(children)
                   : null
               : null}
