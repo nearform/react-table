@@ -3,9 +3,25 @@ import { TableConsumer } from './TableContext'
 
 export class TableHeaderRow extends React.Component {
   render() {
+    const { className, children, style, component } = this.props
     return (
       <TableConsumer>
-        {tableProps => <HeaderData {...this.props} {...tableProps} />}
+        {({ setHeaderData }) => (
+          <React.Fragment>
+            <HeaderData {...this.props} setHeaderData={setHeaderData} />
+            {component ? (
+              React.createElement(component, {
+                ...this.props,
+                className,
+                style
+              })
+            ) : (
+              <div style={style} className={className}>
+                {children}
+              </div>
+            )}
+          </React.Fragment>
+        )}
       </TableConsumer>
     )
   }
@@ -41,8 +57,6 @@ export class HeaderData extends React.Component {
   }
 
   render() {
-    return (
-      <div className={this.props.className || null}>{this.props.children}</div>
-    )
+    return null
   }
 }

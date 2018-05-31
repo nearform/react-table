@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "lodash.conforms": "^4.5.0",
-    "lodash.orderby": "^4.6.0"
+    "lodash.orderby": "^4.6.0",
+    "shortid": "^2.2.8"
   },
   "peerDependencies": {
     "react": "16.x"

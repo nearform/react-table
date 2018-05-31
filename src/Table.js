@@ -1,4 +1,5 @@
 import React from 'react'
+import shortid from 'shortid'
 import orderBy from 'lodash.orderby'
 import conforms from 'lodash.conforms'
 import { TableProvider } from './TableContext'
@@ -6,9 +7,10 @@ import { TableProvider } from './TableContext'
 export class Table extends React.Component {
   state = {
     columns: this.props.columns,
-    data: this.props.data,
+    data: this.props.data.map(d => ({ ...d, _table_id: shortid.generate() })),
     sorting: [],
     filtering: [],
+    selecting: [],
     total: this.props.data.length,
     pageSize: this.props.pageSize,
     currentPage: this.props.currentPage,
@@ -151,6 +153,34 @@ export class Table extends React.Component {
     })
   }
 
+  handleRowSelect = rowIndex => {
+    this.setState(({ selecting }) => {
+      if (rowIndex === 'all' && selecting[0] !== 'all') {
+        return {
+          selecting: ['all']
+        }
+      }
+
+      if (selecting[0] === 'all') {
+        return {
+          selecting: []
+        }
+      }
+
+      const existingValue = selecting.find(s => s === rowIndex)
+
+      if (typeof existingValue === 'undefined') {
+        return {
+          selecting: [...selecting, rowIndex]
+        }
+      }
+
+      return {
+        selecting: selecting.filter(s => s !== rowIndex)
+      }
+    })
+  }
+
   getComputedProps = () => {
     const {
       columns,
@@ -158,8 +188,11 @@ export class Table extends React.Component {
       currentPage,
       pageSize,
       sorting,
-      filtering
+      filtering,
+      selecting
     } = this.state
+
+    if (!columns.length) return { rows: [] }
 
     const start = (currentPage - 1) * pageSize
     const end = start + pageSize
@@ -176,15 +209,26 @@ export class Table extends React.Component {
     const orderedRows = orderBy(data, iteratees, orders)
     const filteredRows = orderedRows.filter(conforms(filterPredicate))
 
-    const rows = filteredRows.slice(start, end).map((row, index) => {
-      return columns.map(({ accessor }) => {
-        return {
-          id: row.id,
-          row: index,
-          accessor,
-          data: row[accessor]
-        }
-      })
+    const rows = filteredRows.slice(start, end).map((row, rowIndex) => {
+      return {
+        selected:
+          selecting[0] === 'all' ||
+          typeof selecting.find(s => s === rowIndex) !== 'undefined',
+        rowKey: row._table_id,
+        rowData: columns.map(({ accessor }, columnIndex) => {
+          return accessor
+            ? {
+                key: `${row._table_id}-${rowIndex}-${columnIndex}`,
+                type: 'data-row',
+                accessor,
+                data: row[accessor]
+              }
+            : {
+                type: 'empty-row',
+                key: `${row._table_id}-empty-${rowIndex}-${columnIndex}`
+              }
+        })
+      }
     })
 
     const totalNumberOfPages = Math.ceil(filteredRows.length / pageSize)
@@ -207,7 +251,8 @@ export class Table extends React.Component {
       handlePrevPage: this.handlePrevPage,
       handlePageChange: this.handlePageChange,
       handlePageChangeBlur: this.handlePageChangeBlur,
-      handlePageSizeChange: this.handlePageSizeChange
+      handlePageSizeChange: this.handlePageSizeChange,
+      handleRowSelect: this.handleRowSelect
     }
   }
 

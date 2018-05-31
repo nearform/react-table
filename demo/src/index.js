@@ -1,194 +1,61 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Table, TableHeaderRow, TableHeader } from '../../src'
+
+import VerticalTable from './VerticalTable'
+import HorizontalTable from './HorizontalTable'
+import EmptyTable from './EmptyTable'
+import MaterialTable from './MaterialTable'
+
 import './Table.css'
 
-const data = [
-  {
-    id: 1,
-    name: 'John Smith',
-    job: 'Developer',
-    location: 'USA'
-  },
-  {
-    id: 2,
-    name: 'Jane Doe',
-    job: 'Sales Manager',
-    location: 'EU'
-  },
-  {
-    id: 3,
-    name: 'Robert Jones',
-    job: 'Technical Manager',
-    location: 'UK'
-  },
-  {
-    id: 4,
-    name: 'Angela Stoneworth',
-    job: 'Sales Rep',
-    location: 'UK'
-  },
-  {
-    id: 5,
-    name: 'Jack Fire',
-    job: 'Developer',
-    location: 'USA'
-  },
-  {
-    id: 6,
-    name: 'Donny Doe',
-    job: 'Sales Manager',
-    location: 'EU'
-  },
-  {
-    id: 7,
-    name: 'Ruby Reynolds',
-    job: 'Technical Manager',
-    location: 'UK'
-  },
-  {
-    id: 8,
-    name: 'Lenard Bonaparte',
-    job: 'Sales Rep',
-    location: 'EU'
-  }
-]
-
 class Demo extends React.Component {
+  state = {
+    showing: 'material'
+  }
+
   render() {
     return (
-      <Table
-        data={data}
-        pageSize={6}
-        pageSizeOptions={[6, 12, 24, 48]}
-        render={({
-          columns,
-          rows,
-          setHeaderData,
-          sorting,
-          handleFilter,
-          totalNumberOfPages,
-          hasPrevPage,
-          hasNextPage,
-          pageSizeOptions,
-          total,
-          pageSize,
-          currentPage,
-          selectedPage,
-          handleNextPage,
-          handlePrevPage,
-          handlePageChange,
-          handlePageChangeBlur,
-          handlePageSizeChange
-        }) => {
-          return (
-            <div className="table">
-              <TableHeaderRow className="tr th">
-                <TableHeader accessor="name" sortable filterable>
-                  Name
-                </TableHeader>
-                <TableHeader accessor="job" sortable filterable>
-                  Job
-                </TableHeader>
-                <TableHeader accessor="location" filterable>
-                  Location
-                </TableHeader>
-              </TableHeaderRow>
-              <div className="tr">
-                {columns.map(
-                  (column, index) =>
-                    column.filterable ? (
-                      <div className="filter" key={column.accessor}>
-                        {column.accessor === 'location' ? (
-                          <select
-                            onChange={e => {
-                              handleFilter(column.accessor, e.target.value)
-                            }}
-                          >
-                            <option />
-                            <option value="USA">USA</option>
-                            <option value="EU">EU</option>
-                            <option value="UK">UK</option>
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            onChange={e => {
-                              e.preventDefault()
+      <div style={{ margin: '0.5em' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around'
+          }}
+        >
+          <button onClick={e => this.setState({ showing: 'vertical' })}>
+            Show Vertical
+          </button>
+          <button onClick={e => this.setState({ showing: 'horizontal' })}>
+            Show Horizontal
+          </button>
+          <button onClick={e => this.setState({ showing: 'empty' })}>
+            Show Empty
+          </button>
+          <button onClick={e => this.setState({ showing: 'material' })}>
+            Show Material Table
+          </button>
+        </div>
+        {this.state.showing === 'vertical' && (
+          <div>
+            <h1>Vertical Table</h1>
+            <VerticalTable />
+          </div>
+        )}
+        {this.state.showing === 'horizontal' && (
+          <div>
+            <h1>Horizontal Table</h1>
+            <HorizontalTable />
+          </div>
+        )}
+        {this.state.showing === 'empty' && (
+          <div>
+            <h1>Empty Table</h1>
+            <EmptyTable />
+          </div>
+        )}
 
-                              handleFilter(column.accessor, e.target.value)
-                            }}
-                            style={{ width: '100%', padding: '7px' }}
-                          />
-                        )}
-                      </div>
-                    ) : (
-                      <div className="filter" />
-                    )
-                )}
-              </div>
-              <div>
-                {rows.map((row, index) => (
-                  <div className="tr hover" key={index}>
-                    {row &&
-                      row.map(column => (
-                        <div
-                          key={`${column.id}-${column.accessor}`}
-                          className="td"
-                          style={{ justifyContent: 'center' }}
-                        >
-                          <span>
-                            <a>{column.data}</a>
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                ))}
-              </div>
-
-              <footer
-                className="footer"
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.5em 0'
-                }}
-              >
-                <button onClick={handlePrevPage} disabled={!hasPrevPage}>
-                  Prev Page
-                </button>
-
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <p style={{ marginRight: '1em' }}>Page</p>
-                  <input
-                    type="number"
-                    min={1}
-                    max={totalNumberOfPages}
-                    onChange={handlePageChange}
-                    onBlur={handlePageChangeBlur}
-                    value={selectedPage}
-                  />
-                  <p> of {totalNumberOfPages}</p>
-                </div>
-
-                <div>
-                  <select onChange={handlePageSizeChange} value={pageSize}>
-                    {pageSizeOptions.map(pageSize => (
-                      <option key={pageSize} value={pageSize}>
-                        {pageSize} rows
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button onClick={handleNextPage} disabled={!hasNextPage}>
-                  Next Page
-                </button>
-              </footer>
-            </div>
-          )
-        }}
-      />
+        {this.state.showing === 'material' && <MaterialTable />}
+      </div>
     )
   }
 }
