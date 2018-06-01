@@ -10,7 +10,7 @@ import './Table.css'
 
 class Demo extends React.Component {
   state = {
-    showing: 'material'
+    showing: ''
   }
 
   render() {
