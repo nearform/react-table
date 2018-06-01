@@ -153,9 +153,9 @@ export class Table extends React.Component {
     })
   }
 
-  handleRowSelect = rowIndex => {
+  handleRowSelect = rowKey => {
     this.setState(({ selecting }) => {
-      if (rowIndex === 'all' && selecting[0] !== 'all') {
+      if (rowKey === 'all' && selecting[0] !== 'all') {
         return {
           selecting: ['all']
         }
@@ -167,16 +167,16 @@ export class Table extends React.Component {
         }
       }
 
-      const existingValue = selecting.find(s => s === rowIndex)
+      const existingValue = selecting.find(s => s === rowKey)
 
       if (typeof existingValue === 'undefined') {
         return {
-          selecting: [...selecting, rowIndex]
+          selecting: [...selecting, rowKey]
         }
       }
 
       return {
-        selecting: selecting.filter(s => s !== rowIndex)
+        selecting: selecting.filter(s => s !== rowKey)
       }
     })
   }
@@ -213,7 +213,7 @@ export class Table extends React.Component {
       return {
         selected:
           selecting[0] === 'all' ||
-          typeof selecting.find(s => s === rowIndex) !== 'undefined',
+          typeof selecting.find(s => s === row._table_id) !== 'undefined',
         rowKey: row._table_id,
         rowData: columns.map(({ accessor }, columnIndex) => {
           return accessor

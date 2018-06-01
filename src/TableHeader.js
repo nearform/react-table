@@ -12,7 +12,20 @@ export class TableHeader extends React.Component {
           const isSorting = sorting.find(column => column.id === accessor)
 
           return component ? (
-            React.createElement(component, { ...this.props, className, style })
+            React.createElement(component, {
+              ...this.props,
+              className,
+              style,
+              isSorting,
+              ...(sortable
+                ? {
+                    onClick: e => {
+                      const isMultipleSelect = e.shiftKey
+                      return handleSort(accessor, isMultipleSelect)
+                    }
+                  }
+                : {})
+            })
           ) : (
             <div
               style={style}

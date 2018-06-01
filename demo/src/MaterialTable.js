@@ -1,6 +1,9 @@
 import React from 'react'
 import { Table, TableHeaderRow, TableHeader } from '../../src'
-import DeleteIcon from '../../demo/src/baseline-delete-24px.svg'
+import DeleteIcon from './baseline-delete-24px.svg'
+import UpArrow from './baseline-arrow_upward-24px.svg'
+import DownArrow from './baseline-arrow_downward-24px.svg'
+
 const desserts = [
   {
     name: 'Frozen yogurt',
@@ -59,28 +62,70 @@ const desserts = [
     protein: 4.9
   }
 ]
+
 const HorizontalDiv = props => (
   <thead style={{ display: 'table-header-group' }}>
     <tr>{props.children}</tr>
   </thead>
 )
 
-const HeaderComponent = props => (
-  <th
-    {...props}
-    component={null}
-    style={{
-      color: 'rgba(0, 0, 0, 0.54)',
-      fontWeight: 500,
-      fontSize: '0.75rem',
-      display: 'table-cell',
-      borderBottom: '1px solid rgba(224, 224, 224, 1)',
-      padding: '2em 0.25em 1em'
-    }}
-  >
-    {props.children}
-  </th>
-)
+const HeaderComponent = ({ onClick, isSorting, children }) => {
+  return (
+    <th
+      onClick={onClick}
+      style={{
+        userSelect: 'none',
+        color: `${isSorting ? '#000' : 'rgba(0, 0, 0, 0.54)'}`,
+        fontWeight: 500,
+        fontSize: '0.75rem',
+        display: 'table-cell',
+        borderBottom: '1px solid rgba(224, 224, 224, 1)',
+        padding: '2em 0.25em 1em'
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center'
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          {isSorting ? (
+            isSorting.asc ? (
+              <img
+                style={{
+                  position: 'absolute',
+                  left: '-2em',
+                  width: '1.5em'
+                }}
+                src={DownArrow}
+                alt="down-arrow"
+              />
+            ) : (
+              <img
+                style={{
+                  position: 'absolute',
+                  left: '-2em',
+                  width: '1.5em'
+                }}
+                src={UpArrow}
+                alt="up-arrow"
+              />
+            )
+          ) : null}
+          {children}
+        </div>
+      </div>
+    </th>
+  )
+}
 
 class CheckBox extends React.Component {
   render() {
@@ -151,13 +196,16 @@ class MaterialTable extends React.Component {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'baseline',
-                      color: 'rgba(0, 0, 0, 0.87)',
-                      background: '#fff',
+                      color:
+                        selecting.length > 0
+                          ? '#673ab7'
+                          : 'rgba(0, 0, 0, 0.87)',
+                      background: selecting.length > 0 ? '#e8eaf6' : '#fff',
                       margin: 0,
                       padding: '1em 1em 0.5em 1em'
                     }}
                   >
-                    <h2>Material Table</h2>
+                    <h2 style={{ color: '#000' }}>Material Table</h2>
                     <div
                       style={{
                         display: 'flex',
@@ -206,10 +254,7 @@ class MaterialTable extends React.Component {
                       borderCollapse: 'collapse'
                     }}
                   >
-                    <TableHeaderRow
-                      component={HorizontalDiv}
-                      setHeaderData={setHeaderData}
-                    >
+                    <TableHeaderRow component={HorizontalDiv}>
                       <HeaderComponent
                         onClick={e => {
                           handleRowSelect('all')
@@ -217,24 +262,38 @@ class MaterialTable extends React.Component {
                       >
                         <CheckBox checked={selecting[0] === 'all'} />
                       </HeaderComponent>
-                      <TableHeader accessor="name" component={HeaderComponent}>
+                      <TableHeader
+                        accessor="name"
+                        component={HeaderComponent}
+                        sortable
+                      >
                         Dessert (100g serving)
                       </TableHeader>
                       <TableHeader
                         accessor="calories"
                         component={HeaderComponent}
+                        sortable
                       >
                         Calories
                       </TableHeader>
-                      <TableHeader accessor="fat" component={HeaderComponent}>
+                      <TableHeader
+                        accessor="fat"
+                        component={HeaderComponent}
+                        sortable
+                      >
                         Fat (g)
                       </TableHeader>
-                      <TableHeader accessor="carbs" component={HeaderComponent}>
+                      <TableHeader
+                        accessor="carbs"
+                        component={HeaderComponent}
+                        sortable
+                      >
                         Carbs (g)
                       </TableHeader>
                       <TableHeader
                         accessor="protein"
                         component={HeaderComponent}
+                        sortable
                       >
                         Protein (g)
                       </TableHeader>
@@ -257,7 +316,7 @@ class MaterialTable extends React.Component {
                             backgroundColor: selected ? '#E8EAF6' : ''
                           }}
                           onClick={e => {
-                            handleRowSelect(index)
+                            handleRowSelect(rowKey)
                           }}
                         >
                           {rowData.map(({ accessor, data, key }) => (
