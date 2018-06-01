@@ -26,7 +26,7 @@ class HorizontalTable extends React.Component {
               <TableHeader
                 style={{
                   padding: '1em',
-                  background: 'dodgerblue',
+                  background: '#2196F3',
                   color: 'white'
                 }}
                 accessor="type"
@@ -81,7 +81,7 @@ class HorizontalTable extends React.Component {
               <TableHeader
                 style={{
                   padding: '1em',
-                  background: 'dodgerblue',
+                  background: '#2196F3',
                   color: 'white'
                 }}
                 accessor="color"
@@ -139,7 +139,7 @@ class HorizontalTable extends React.Component {
                 flex: '1',
                 display: 'flex',
                 justifyContent: 'space-between',
-                background: '#eee'
+                background: '#f5f5f5'
               }}
             >
               {props.rows.map((row, index) => (
