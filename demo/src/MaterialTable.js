@@ -1,5 +1,6 @@
 import React from 'react'
 import { Table, TableHeaderRow, TableHeader } from '../../src'
+import DeleteIcon from '../../demo/src/baseline-delete-24px.svg'
 const desserts = [
   {
     name: 'Frozen yogurt',
@@ -149,7 +150,7 @@ class MaterialTable extends React.Component {
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
+                      alignItems: 'baseline',
                       color: 'rgba(0, 0, 0, 0.87)',
                       background: '#fff',
                       margin: 0,
@@ -157,13 +158,45 @@ class MaterialTable extends React.Component {
                     }}
                   >
                     <h2>Material Table</h2>
-                    {selecting.length > 0 &&
-                      selecting[0] !== 'all' && (
-                        <p>Number of rows selected: {selecting.length}</p>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {selecting.length > 0 && (
+                        <React.Fragment>
+                          <p style={{ fontSize: '0.875rem', margin: '0 2em' }}>
+                            <span>Number of rows selected: </span>
+                            <span style={{ fontWeight: 'bold' }}>
+                              {selecting[0] === 'all'
+                                ? rows.length
+                                : selecting.length}
+                            </span>
+                          </p>
+                          <div
+                            style={{
+                              position: 'relative',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <button
+                              type="button"
+                              className="ripple-button"
+                              onClick={e => {
+                                console.log('caught delete click')
+                              }}
+                            >
+                              <img src={DeleteIcon} alt="delete-button" />
+                            </button>
+                            <span className="tooltip">Delete Rows</span>
+                          </div>
+                        </React.Fragment>
                       )}
-                    {selecting[0] === 'all' && (
-                      <p>Number of rows selected: {rows.length}</p>
-                    )}
+                    </div>
                   </div>
                   <table
                     style={{
@@ -213,6 +246,7 @@ class MaterialTable extends React.Component {
                       {rows.map(({ rowKey, rowData, selected }, index) => (
                         <TableRow
                           component="tr"
+                          className="hover-tr"
                           key={rowKey}
                           style={{
                             color: 'inherit',
@@ -220,9 +254,7 @@ class MaterialTable extends React.Component {
                             display: 'table-row',
                             outline: 'none',
                             verticalAlign: 'middle',
-                            backgroundColor: selected
-                              ? 'rgba(0, 0, 0, 0.04)'
-                              : ''
+                            backgroundColor: selected ? '#E8EAF6' : ''
                           }}
                           onClick={e => {
                             handleRowSelect(index)

@@ -129,7 +129,7 @@ class VerticalTable extends React.Component {
                 {rows.map((row, index) => (
                   <div className="tr hover" key={index}>
                     {row &&
-                      row.map(column => (
+                      row.rowData.map(column => (
                         <div
                           key={`${column.id}-${column.accessor}`}
                           className="td"

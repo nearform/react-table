@@ -153,7 +153,7 @@ class HorizontalTable extends React.Component {
                   className="hover"
                   key={index}
                 >
-                  {row.map(column => (
+                  {row.rowData.map(column => (
                     <div
                       style={{ padding: '1em' }}
                       key={`${column.id}-${column.accessor}`}
