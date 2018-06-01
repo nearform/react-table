@@ -71,7 +71,7 @@ class HorizontalTable extends React.Component {
                             height: 0,
                             borderTop: '0.5em solid transparent',
                             borderBottom: '0.5em solid transparent',
-                            borderLeft: '0.5em solid red'
+                            borderLeft: '0.5em solid #d50000'
                           }}
                         />
                       )}
@@ -105,7 +105,7 @@ class HorizontalTable extends React.Component {
                             borderTop: '0.5em solid transparent',
                             borderBottom: '0.5em solid transparent',
 
-                            borderRight: '0.5em solid red'
+                            borderRight: '0.5em solid #d50000'
                           }}
                         />
                       )}

@@ -3,6 +3,9 @@ import { Table, TableHeaderRow, TableHeader } from '../../src'
 import DeleteIcon from './baseline-delete-24px.svg'
 import UpArrow from './baseline-arrow_upward-24px.svg'
 import DownArrow from './baseline-arrow_downward-24px.svg'
+import ForwardArrow from './baseline-arrow_forward_ios-24px.svg'
+import BackArrow from './baseline-arrow_back_ios-24px.svg'
+import DropDown from './baseline-arrow_drop_down-24px.svg'
 
 const desserts = [
   {
@@ -188,7 +191,19 @@ class MaterialTable extends React.Component {
         >
           <Table
             data={desserts}
-            render={({ rows, setHeaderData, handleRowSelect, selecting }) => {
+            render={({
+              rows,
+              setHeaderData,
+              handleRowSelect,
+              selecting,
+              pageSize,
+              total,
+              currentPage,
+              hasNextPage,
+              hasPrevPage,
+              handlePrevPage,
+              handleNextPage
+            }) => {
               return (
                 <React.Fragment>
                   <div
@@ -259,6 +274,7 @@ class MaterialTable extends React.Component {
                         onClick={e => {
                           handleRowSelect('all')
                         }}
+                        style={{ cursor: 'pointer' }}
                       >
                         <CheckBox checked={selecting[0] === 'all'} />
                       </HeaderComponent>
@@ -346,6 +362,72 @@ class MaterialTable extends React.Component {
                       ))}
                     </TableBody>
                   </table>
+                  <footer
+                    style={{
+                      background: '#fff',
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      fontSize: '0.75rem',
+                      color: '#0000008a',
+                      padding: '2em 1em'
+                    }}
+                  >
+                    <span style={{ margin: '0 2em' }}>Rows per page:</span>
+                    <div
+                      style={{
+                        margin: '0 2em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => console.log('Not Implemented Yet')}
+                    >
+                      <span>{pageSize}</span>{' '}
+                      <img src={DropDown} alt="drop-down" />
+                    </div>
+                    <span style={{ margin: '0 2em' }}>
+                      {currentPage * pageSize - pageSize + 1}-
+                      {currentPage * pageSize} of {total}
+                    </span>
+                    <button
+                      style={{
+                        margin: '0 2em',
+                        opacity: `${hasPrevPage ? '1' : '0.25'}`,
+                        cursor: `${hasPrevPage ? 'pointer' : 'not-allowed'}`,
+                        border: 'none',
+                        background: 'inherit',
+                        borderRadius: 'initial',
+                        padding: 'initial',
+                        outline: 'none'
+                      }}
+                      onClick={e => handlePrevPage(e)}
+                    >
+                      <img
+                        src={BackArrow}
+                        alt="back-arrow"
+                        style={{ width: '1.5em' }}
+                      />
+                    </button>
+                    <button
+                      style={{
+                        opacity: `${hasNextPage ? '1' : '0.25'}`,
+                        cursor: `${hasNextPage ? 'pointer' : 'not-allowed'}`,
+                        border: 'none',
+                        background: 'inherit',
+                        borderRadius: 'initial',
+                        padding: 'initial',
+                        outline: 'none'
+                      }}
+                      onClick={e => handleNextPage(e)}
+                    >
+                      <img
+                        src={ForwardArrow}
+                        alt="forward-arrow"
+                        style={{ width: '1.5em' }}
+                      />
+                    </button>
+                  </footer>
                 </React.Fragment>
               )
             }}

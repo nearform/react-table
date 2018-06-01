@@ -258,7 +258,7 @@ tr {
 }
 
 .ripple-button:hover:not(:disabled) {
-  background: #9c27b0;
+  background: #673ab7;
   outline: none;
 }
 
