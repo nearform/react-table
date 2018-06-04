@@ -130,8 +130,96 @@ const HeaderComponent = ({ onClick, isSorting, children }) => {
   )
 }
 
+class PageSizeChooser extends React.Component {
+  state = {
+    open: false,
+    pageSizeOptions: this.props.pageSizeOptions
+  }
+
+  static defaultProps = {
+    pageSizeOptions: []
+  }
+
+  render() {
+    const { open, pageSizeOptions } = this.state
+    const { pageSize, handlePageSizeChange } = this.props
+
+    return (
+      <div
+        style={{ position: 'relative', outline: 'none' }}
+        tabIndex={open ? '0' : '-1'}
+        onBlur={e => this.setState(state => ({ open: false }))}
+      >
+        <div
+          style={{
+            display: 'flex',
+            opacity: `${open ? '1' : '0'}`,
+            visibility: `${open ? 'visible' : 'hidden'}`,
+            animiation: 'fadeIn 200ms',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            position: 'absolute',
+            borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+            borderBottom: '1px solid transparent',
+            top: `-${pageSizeOptions.length * 2 + 1}rem`,
+            left: '-2rem',
+            minWidth: '7rem',
+            background: '#fff',
+            zIndex: 2,
+            borderRadius: '0.5em',
+            padding: 'calc(0.5rem - 1px) 0px',
+            boxShadow:
+              ' 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+            transition:
+              'opacity 300ms cubic-bezier(0.600, -0.030, 0.340, 0.895)'
+          }}
+        >
+          <ul
+            style={{
+              listStyle: 'none',
+              padding: 0,
+              margin: 0
+            }}
+          >
+            {pageSizeOptions.map(option => (
+              <li key={option} className="menu-li">
+                <button
+                  value={option}
+                  className={`${pageSize === option ? 'selected' : ''}`}
+                  onMouseDown={e =>
+                    this.setState(
+                      state => ({ open: false }),
+                      handlePageSizeChange(e)
+                    )
+                  }
+                >
+                  {option}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <button
+          onClick={e => this.setState(state => ({ open: true }))}
+          className="menu-dropdown"
+          type="button"
+        >
+          <span style={{ padding: '0 0 0 0.75em', lineHeight: '24px' }}>
+            {pageSize}
+          </span>
+
+          <img src={DropDown} alt="drop-down" />
+        </button>
+      </div>
+    )
+  }
+}
+
 class CheckBox extends React.Component {
   render() {
+    const { checked } = this.props
+
     return (
       <React.Fragment>
         <input
@@ -142,7 +230,7 @@ class CheckBox extends React.Component {
             pointerEvents: 'none'
           }}
           onChange={() => ({})}
-          checked={this.props.checked ? 'checked' : ''}
+          checked={checked ? 'checked' : ''}
         />
         <span />
       </React.Fragment>
@@ -190,6 +278,8 @@ class MaterialTable extends React.Component {
           style={{ background: '#eee', padding: '3em 2em', minWidth: '80vw' }}
         >
           <Table
+            pageSize={5}
+            pageSizeOptions={[5, 10, 20, 50]}
             data={desserts}
             render={({
               rows,
@@ -197,12 +287,14 @@ class MaterialTable extends React.Component {
               handleRowSelect,
               selecting,
               pageSize,
+              pageSizeOptions,
               total,
               currentPage,
               hasNextPage,
               hasPrevPage,
               handlePrevPage,
-              handleNextPage
+              handleNextPage,
+              handlePageSizeChange
             }) => {
               return (
                 <React.Fragment>
@@ -261,173 +353,172 @@ class MaterialTable extends React.Component {
                       )}
                     </div>
                   </div>
-                  <table
-                    style={{
-                      width: '100%',
-                      background: '#fff',
-                      borderSpacing: 0,
-                      borderCollapse: 'collapse'
-                    }}
-                  >
-                    <TableHeaderRow component={HorizontalDiv}>
-                      <HeaderComponent
-                        onClick={e => {
-                          handleRowSelect('all')
-                        }}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <CheckBox checked={selecting[0] === 'all'} />
-                      </HeaderComponent>
-                      <TableHeader
-                        accessor="name"
-                        component={HeaderComponent}
-                        sortable
-                      >
-                        Dessert (100g serving)
-                      </TableHeader>
-                      <TableHeader
-                        accessor="calories"
-                        component={HeaderComponent}
-                        sortable
-                      >
-                        Calories
-                      </TableHeader>
-                      <TableHeader
-                        accessor="fat"
-                        component={HeaderComponent}
-                        sortable
-                      >
-                        Fat (g)
-                      </TableHeader>
-                      <TableHeader
-                        accessor="carbs"
-                        component={HeaderComponent}
-                        sortable
-                      >
-                        Carbs (g)
-                      </TableHeader>
-                      <TableHeader
-                        accessor="protein"
-                        component={HeaderComponent}
-                        sortable
-                      >
-                        Protein (g)
-                      </TableHeader>
-                    </TableHeaderRow>
-                    <TableBody
-                      component="tbody"
-                      style={{ display: 'table-row-group' }}
+                  <div style={{ overflow: 'auto' }}>
+                    <table
+                      style={{
+                        width: '100%',
+                        background: '#fff',
+                        borderSpacing: 0,
+                        borderCollapse: 'collapse'
+                      }}
                     >
-                      {rows.map(({ rowKey, rowData, selected }, index) => (
-                        <TableRow
-                          component="tr"
-                          className="hover-tr"
-                          key={rowKey}
-                          style={{
-                            color: 'inherit',
-                            height: '3em',
-                            display: 'table-row',
-                            outline: 'none',
-                            verticalAlign: 'middle',
-                            backgroundColor: selected ? '#E8EAF6' : ''
-                          }}
+                      <TableHeaderRow component={HorizontalDiv}>
+                        <HeaderComponent
                           onClick={e => {
-                            handleRowSelect(rowKey)
+                            handleRowSelect('all')
                           }}
+                          style={{ cursor: 'pointer' }}
                         >
-                          {rowData.map(({ accessor, data, key }) => (
-                            <TableData
-                              component="td"
-                              key={key}
-                              style={{
-                                color: 'rgba(0, 0, 0, 0.87)',
-                                fontSize: '0.8rem',
-                                fontWeight: 400,
-                                display: 'table-cell',
-                                padding: '1em',
-                                textAlign: 'center',
-                                borderBottom:
-                                  '1px solid rgba(224, 224, 224, 1)',
-                                verticalAlign: 'inherit'
-                              }}
-                            >
-                              {accessor ? (
-                                data
-                              ) : (
-                                <CheckBox checked={selected} />
-                              )}
-                            </TableData>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </table>
-                  <footer
-                    style={{
-                      background: '#fff',
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                      fontSize: '0.75rem',
-                      color: '#0000008a',
-                      padding: '2em 1em'
-                    }}
-                  >
-                    <span style={{ margin: '0 2em' }}>Rows per page:</span>
-                    <div
+                          <CheckBox checked={selecting[0] === 'all'} />
+                        </HeaderComponent>
+                        <TableHeader
+                          accessor="name"
+                          component={HeaderComponent}
+                          sortable
+                        >
+                          Dessert (100g serving)
+                        </TableHeader>
+                        <TableHeader
+                          accessor="calories"
+                          component={HeaderComponent}
+                          sortable
+                        >
+                          Calories
+                        </TableHeader>
+                        <TableHeader
+                          accessor="fat"
+                          component={HeaderComponent}
+                          sortable
+                        >
+                          Fat (g)
+                        </TableHeader>
+                        <TableHeader
+                          accessor="carbs"
+                          component={HeaderComponent}
+                          sortable
+                        >
+                          Carbs (g)
+                        </TableHeader>
+                        <TableHeader
+                          accessor="protein"
+                          component={HeaderComponent}
+                          sortable
+                        >
+                          Protein (g)
+                        </TableHeader>
+                      </TableHeaderRow>
+                      <TableBody
+                        component="tbody"
+                        style={{ display: 'table-row-group' }}
+                      >
+                        {rows.map(({ rowKey, rowData, selected }, index) => (
+                          <TableRow
+                            component="tr"
+                            className="hover-tr"
+                            key={rowKey}
+                            style={{
+                              color: 'inherit',
+                              height: '3em',
+                              display: 'table-row',
+                              outline: 'none',
+                              verticalAlign: 'middle',
+                              backgroundColor: selected ? '#E8EAF6' : ''
+                            }}
+                            onClick={e => {
+                              handleRowSelect(rowKey)
+                            }}
+                          >
+                            {rowData.map(({ accessor, data, key }) => (
+                              <TableData
+                                component="td"
+                                key={key}
+                                style={{
+                                  color: 'rgba(0, 0, 0, 0.87)',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 400,
+                                  display: 'table-cell',
+                                  padding: '1em',
+                                  textAlign: 'center',
+                                  borderBottom:
+                                    '1px solid rgba(224, 224, 224, 1)',
+                                  verticalAlign: 'inherit'
+                                }}
+                              >
+                                {accessor ? (
+                                  data
+                                ) : (
+                                  <CheckBox checked={selected} />
+                                )}
+                              </TableData>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </table>
+                    <footer
                       style={{
-                        margin: '0 2em',
+                        background: '#fff',
                         display: 'flex',
+                        justifyContent: 'flex-end',
                         alignItems: 'center',
-                        cursor: 'pointer'
+                        fontSize: '0.75rem',
+                        color: '#0000008a',
+                        padding: '2em 1em'
                       }}
-                      onClick={() => console.log('Not Implemented Yet')}
                     >
-                      <span>{pageSize}</span>{' '}
-                      <img src={DropDown} alt="drop-down" />
-                    </div>
-                    <span style={{ margin: '0 2em' }}>
-                      {currentPage * pageSize - pageSize + 1}-
-                      {currentPage * pageSize} of {total}
-                    </span>
-                    <button
-                      style={{
-                        margin: '0 2em',
-                        opacity: `${hasPrevPage ? '1' : '0.25'}`,
-                        cursor: `${hasPrevPage ? 'pointer' : 'not-allowed'}`,
-                        border: 'none',
-                        background: 'inherit',
-                        borderRadius: 'initial',
-                        padding: 'initial',
-                        outline: 'none'
-                      }}
-                      onClick={e => handlePrevPage(e)}
-                    >
-                      <img
-                        src={BackArrow}
-                        alt="back-arrow"
-                        style={{ width: '1.5em' }}
+                      <span style={{ margin: '0 2em' }}>Rows per page:</span>
+                      <PageSizeChooser
+                        pageSize={pageSize}
+                        pageSizeOptions={pageSizeOptions}
+                        handlePageSizeChange={handlePageSizeChange}
                       />
-                    </button>
-                    <button
-                      style={{
-                        opacity: `${hasNextPage ? '1' : '0.25'}`,
-                        cursor: `${hasNextPage ? 'pointer' : 'not-allowed'}`,
-                        border: 'none',
-                        background: 'inherit',
-                        borderRadius: 'initial',
-                        padding: 'initial',
-                        outline: 'none'
-                      }}
-                      onClick={e => handleNextPage(e)}
-                    >
-                      <img
-                        src={ForwardArrow}
-                        alt="forward-arrow"
-                        style={{ width: '1.5em' }}
-                      />
-                    </button>
-                  </footer>
+
+                      <span style={{ margin: '0 2em' }}>
+                        {currentPage * pageSize - pageSize + 1}-
+                        {currentPage * pageSize > total
+                          ? total
+                          : currentPage * pageSize}{' '}
+                        of {total}
+                      </span>
+                      <button
+                        style={{
+                          margin: '0 2em',
+                          opacity: `${hasPrevPage ? '1' : '0.25'}`,
+                          cursor: `${hasPrevPage ? 'pointer' : 'not-allowed'}`,
+                          border: 'none',
+                          background: 'inherit',
+                          borderRadius: 'initial',
+                          padding: 'initial',
+                          outline: 'none'
+                        }}
+                        onClick={e => handlePrevPage(e)}
+                      >
+                        <img
+                          src={BackArrow}
+                          alt="back-arrow"
+                          style={{ width: '1.5em' }}
+                        />
+                      </button>
+                      <button
+                        style={{
+                          opacity: `${hasNextPage ? '1' : '0.25'}`,
+                          cursor: `${hasNextPage ? 'pointer' : 'not-allowed'}`,
+                          border: 'none',
+                          background: 'inherit',
+                          borderRadius: 'initial',
+                          padding: 'initial',
+                          outline: 'none'
+                        }}
+                        onClick={e => handleNextPage(e)}
+                      >
+                        <img
+                          src={ForwardArrow}
+                          alt="forward-arrow"
+                          style={{ width: '1.5em' }}
+                        />
+                      </button>
+                    </footer>
+                  </div>
                 </React.Fragment>
               )
             }}
