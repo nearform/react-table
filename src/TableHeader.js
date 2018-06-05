@@ -7,25 +7,28 @@ export class TableHeader extends React.Component {
 
     return (
       <TableConsumer>
-        {({ columns, sorting, handleSort }) => {
-          const { accessor, sortable } = this.props
+        {({ columns = [], sorting = [], handleSort } = {}) => {
+          const { children, accessor, sortable = false } = this.props
           const isSorting = sorting.find(column => column.id === accessor)
 
           return component ? (
-            React.createElement(component, {
-              ...this.props,
-              className,
-              style,
-              isSorting,
-              ...(sortable
-                ? {
-                    onClick: e => {
-                      const isMultipleSelect = e.shiftKey
-                      return handleSort(accessor, isMultipleSelect)
+            React.createElement(
+              component,
+              {
+                className,
+                style,
+                ...(sortable
+                  ? {
+                      isSorting,
+                      onClick: e => {
+                        const isMultipleSelect = e.shiftKey
+                        return handleSort(accessor, isMultipleSelect)
+                      }
                     }
-                  }
-                : {})
-            })
+                  : {})
+              },
+              children
+            )
           ) : (
             <div
               style={style}
