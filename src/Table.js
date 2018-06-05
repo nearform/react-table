@@ -12,6 +12,7 @@ export class Table extends React.Component {
     filtering: [],
     selecting: [],
     total: this.props.data.length,
+    totalNumberOfPages: 0,
     pageSize: this.props.pageSize,
     currentPage: this.props.currentPage,
     selectedPage: this.props.currentPage,

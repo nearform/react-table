@@ -155,24 +155,11 @@ test('generate rows from columns with columns object set', () => {
 
   expect(columns).toEqual(headerData.columns)
 
-  expect(rows).toEqual([
-    [
-      {
-        accessor: 'animal',
-        data: 'dog',
-        id: 1,
-        row: 0
-      }
-    ],
-    [
-      {
-        accessor: 'animal',
-        data: 'cat',
-        id: 2,
-        row: 1
-      }
-    ]
-  ])
+  expect(rows.length).toBe(2)
+  expect(rows[0].rowData[0].data).toBe('dog')
+  expect(rows[0].rowData[0].accessor).toBe('animal')
+  expect(rows[0].rowData[0].key).toBeDefined()
+  expect(rows[0].rowData[0].type).toBe('data-row')
 })
 
 test('paging forwards and backwards works', () => {
@@ -185,7 +172,7 @@ test('paging forwards and backwards works', () => {
 
   expect(tableProps.hasNextPage).toBeTruthy()
   expect(tableProps.hasPrevPage).toBeFalsy()
-  expect(tableProps.rows[0][0].data).toBe('dog')
+  expect(tableProps.rows[0].rowData[0].data).toBe('dog')
 
   const nextPreventDefault = jest.fn()
   handleNextPage({ preventDefault: nextPreventDefault })
@@ -194,7 +181,7 @@ test('paging forwards and backwards works', () => {
   const nextPageProps = getNextProps()
   expect(nextPageProps.hasNextPage).toBeFalsy()
   expect(nextPageProps.hasPrevPage).toBeTruthy()
-  expect(nextPageProps.rows[0][0].data).toBe('cat')
+  expect(nextPageProps.rows[0].rowData[0].data).toBe('cat')
 
   const prevPreventDefault = jest.fn()
   handlePrevPage({ preventDefault: prevPreventDefault })
@@ -203,7 +190,7 @@ test('paging forwards and backwards works', () => {
   const prevPageProps = getNextProps()
   expect(prevPageProps.hasNextPage).toBeTruthy()
   expect(prevPageProps.hasPrevPage).toBeFalsy()
-  expect(prevPageProps.rows[0][0].data).toBe('dog')
+  expect(prevPageProps.rows[0].rowData[0].data).toBe('dog')
 })
 
 test('change page successfully', () => {
@@ -281,19 +268,19 @@ test('changing page size', () => {
 test('sorting column - no multiple select', () => {
   const { tableProps, getNextProps } = initializeTable()
 
-  expect(tableProps.rows[0][0].data).toBe('dog')
+  expect(tableProps.rows[0].rowData[0].data).toBe('dog')
   tableProps.handleSort('animal')
   const nextProps = getNextProps()
-  expect(nextProps.rows[0][0].data).toBe('cat')
+  expect(nextProps.rows[0].rowData[0].data).toBe('cat')
 })
 
 test('sorting column - multiple select', () => {
   const { tableProps, getNextProps } = initializeTable()
 
-  expect(tableProps.rows[0][0].data).toBe('dog')
+  expect(tableProps.rows[0].rowData[0].data).toBe('dog')
   tableProps.handleSort('animal', true)
   const nextProps = getNextProps()
-  expect(nextProps.rows[0][0].data).toBe('cat')
+  expect(nextProps.rows[0].rowData[0].data).toBe('cat')
 })
 
 test('filter column ', () => {
@@ -304,5 +291,5 @@ test('filter column ', () => {
   const nextProps = getNextProps()
 
   expect(nextProps.rows.length).toBe(1)
-  expect(nextProps.rows[0][0].data).toBe('dog')
+  expect(nextProps.rows[0].rowData[0].data).toBe('dog')
 })
