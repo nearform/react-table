@@ -66,13 +66,15 @@ const desserts = [
   }
 ]
 
-const HorizontalDiv = props => (
-  <thead style={{ display: 'table-header-group' }}>
-    <tr>{props.children}</tr>
-  </thead>
-)
+function HorizontalDiv({ children }) {
+  return (
+    <thead style={{ display: 'table-header-group' }}>
+      <tr>{children}</tr>
+    </thead>
+  )
+}
 
-const HeaderComponent = ({ onClick, isSorting, children }) => {
+function HeaderComponent({ onClick, isSorting, children }) {
   return (
     <th
       onClick={onClick}
@@ -216,56 +218,42 @@ class PageSizeChooser extends React.Component {
   }
 }
 
-class CheckBox extends React.Component {
-  render() {
-    const { checked } = this.props
-
-    return (
-      <React.Fragment>
-        <input
-          type="checkbox"
-          style={{
-            position: 'absolute',
-            opacity: 0,
-            pointerEvents: 'none'
-          }}
-          onChange={() => ({})}
-          checked={checked ? 'checked' : ''}
-        />
-        <span />
-      </React.Fragment>
-    )
-  }
+function CheckBox({ checked }) {
+  return (
+    <React.Fragment>
+      <input
+        type="checkbox"
+        style={{
+          position: 'absolute',
+          opacity: 0,
+          pointerEvents: 'none'
+        }}
+        onChange={() => ({})}
+        checked={checked ? 'checked' : ''}
+      />
+      <span />
+    </React.Fragment>
+  )
 }
 
-class TableBody extends React.Component {
-  render() {
-    const { component, children } = this.props
-
-    return React.createElement(component, { children })
-  }
+function TableBody({ component, children }) {
+  return React.createElement(component, { children })
 }
 
-class TableRow extends React.Component {
-  render() {
-    const { component, children, style, className } = this.props
+function TableRow(props) {
+  const { component, children, style, className } = props
 
-    return React.createElement(component, {
-      ...this.props,
-      component: null,
-      children,
-      style,
-      className
-    })
-  }
+  return React.createElement(component, {
+    ...props,
+    component: null,
+    children,
+    style,
+    className
+  })
 }
 
-class TableData extends React.Component {
-  render() {
-    const { component, children, style, className } = this.props
-
-    return React.createElement(component, { children, style, className })
-  }
+function TableData({ component, children, style, className }) {
+  return React.createElement(component, { children, style, className })
 }
 
 class MaterialTable extends React.Component {
@@ -353,7 +341,7 @@ class MaterialTable extends React.Component {
                       )}
                     </div>
                   </div>
-                  <div style={{ overflow: 'auto' }}>
+                  <div>
                     <table
                       style={{
                         width: '100%',
