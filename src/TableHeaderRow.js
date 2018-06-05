@@ -6,22 +6,27 @@ export class TableHeaderRow extends React.Component {
     const { className, children, style, component } = this.props
     return (
       <TableConsumer>
-        {({ setHeaderData }) => (
-          <React.Fragment>
-            <HeaderData {...this.props} setHeaderData={setHeaderData} />
-            {component ? (
-              React.createElement(component, {
-                ...this.props,
-                className,
-                style
-              })
-            ) : (
-              <div style={style} className={className}>
-                {children}
-              </div>
-            )}
-          </React.Fragment>
-        )}
+        {tableProps => {
+          return (
+            <React.Fragment>
+              <HeaderData
+                {...this.props}
+                setHeaderData={tableProps ? tableProps.setHeaderData : null}
+              />
+              {component ? (
+                React.createElement(component, {
+                  ...this.props,
+                  className,
+                  style
+                })
+              ) : (
+                <div style={style} className={className}>
+                  {children}
+                </div>
+              )}
+            </React.Fragment>
+          )
+        }}
       </TableConsumer>
     )
   }
@@ -29,12 +34,13 @@ export class TableHeaderRow extends React.Component {
 
 export class HeaderData extends React.Component {
   state = {
-    columns: React.Children.map(this.props.children, ({ props }) => ({
-      accessor: props.accessor,
-      label: props.children,
-      sortable: props.sortable || false,
-      filterable: props.filterable || false
-    })),
+    columns:
+      React.Children.map(this.props.children, ({ props }) => ({
+        accessor: props.accessor || false,
+        label: props.children,
+        sortable: props.sortable || false,
+        filterable: props.filterable || false
+      })) || [],
     shouldUpdateParent: true
   }
 
@@ -44,15 +50,11 @@ export class HeaderData extends React.Component {
 
     this.setState(
       { shouldUpdateParent: false },
-      setHeaderData({ columns: this.state.columns })
+      () => setHeaderData && setHeaderData({ columns: this.state.columns })
     )
   }
 
   componentDidMount() {
-    this.state.shouldUpdateParent && this.setParentData()
-  }
-
-  componentDidUpdate() {
     this.state.shouldUpdateParent && this.setParentData()
   }
 

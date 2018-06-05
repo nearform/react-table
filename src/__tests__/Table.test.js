@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, Simulate } from 'react-testing-library'
+import { render } from 'react-testing-library'
 import { Table } from '..'
 
 const initializeTable = props => {
@@ -128,6 +128,30 @@ test('setTableState updates state correct', () => {
   expect(mockCallback).toHaveBeenCalledTimes(1)
 })
 
+test('setHeaderData ignores empty columns', () => {
+  const mockRender = jest.fn()
+  render(<Table render={mockRender} data={[]} />)
+
+  const { setHeaderData } = mockRender.mock.calls[0][0]
+
+  setHeaderData()
+
+  expect(mockRender.mock.calls[1][0].columns).toEqual([])
+
+  setHeaderData({ columns: { foo: 'foo' } })
+})
+
+test('setHeaderData ignores empty columns', () => {
+  const mockRender = jest.fn()
+  render(<Table render={mockRender} data={[]} />)
+
+  const { setHeaderData } = mockRender.mock.calls[0][0]
+
+  setHeaderData({ columns: { foo: 'foo' } })
+
+  expect(mockRender.mock.calls).toHaveLength(1)
+})
+
 test('generate rows from columns with columns object set', () => {
   const data = [{ id: 1, animal: 'dog' }, { id: 2, animal: 'cat' }]
   const headerData = {
@@ -191,6 +215,22 @@ test('paging forwards and backwards works', () => {
   expect(prevPageProps.hasNextPage).toBeTruthy()
   expect(prevPageProps.hasPrevPage).toBeFalsy()
   expect(prevPageProps.rows[0].rowData[0].data).toBe('dog')
+})
+
+test('bad paging forwards and backwards works', () => {
+  const mockRender = jest.fn()
+  render(<Table data={[]} render={mockRender} />)
+  const { handleNextPage, handlePrevPage } = mockRender.mock.calls[0][0]
+  expect(mockRender.mock.calls).toHaveLength(1)
+  const prevPreventDefault = jest.fn()
+  const nextPreventDefault = jest.fn()
+  handlePrevPage({ preventDefault: prevPreventDefault })
+  expect(prevPreventDefault).toHaveBeenCalledTimes(1)
+  expect(mockRender.mock.calls).toHaveLength(1)
+
+  handleNextPage({ preventDefault: nextPreventDefault })
+  expect(nextPreventDefault).toHaveBeenCalledTimes(1)
+  expect(mockRender.mock.calls).toHaveLength(1)
 })
 
 test('change page successfully', () => {

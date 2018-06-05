@@ -30,7 +30,11 @@ export class Table extends React.Component {
 
   setTableState = (state, cb) => this.setState(state, cb)
 
-  setHeaderData = ({ columns }) => this.setState({ columns })
+  setHeaderData = ({ columns = [] } = {}) => {
+    if (Boolean(columns) && Array.isArray(columns)) {
+      this.setState({ columns })
+    }
+  }
 
   handlePrevPage = e => {
     e && e.preventDefault()
