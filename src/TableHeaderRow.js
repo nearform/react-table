@@ -3,9 +3,30 @@ import { TableConsumer } from './TableContext'
 
 export class TableHeaderRow extends React.Component {
   render() {
+    const { className, children, style, component } = this.props
     return (
       <TableConsumer>
-        {tableProps => <HeaderData {...this.props} {...tableProps} />}
+        {tableProps => {
+          return (
+            <React.Fragment>
+              <HeaderData
+                {...this.props}
+                setHeaderData={tableProps ? tableProps.setHeaderData : null}
+              />
+              {component ? (
+                React.createElement(component, {
+                  ...this.props,
+                  className,
+                  style
+                })
+              ) : (
+                <div style={style} className={className}>
+                  {children}
+                </div>
+              )}
+            </React.Fragment>
+          )
+        }}
       </TableConsumer>
     )
   }
@@ -13,12 +34,13 @@ export class TableHeaderRow extends React.Component {
 
 export class HeaderData extends React.Component {
   state = {
-    columns: React.Children.map(this.props.children, ({ props }) => ({
-      accessor: props.accessor,
-      label: props.children,
-      sortable: props.sortable || false,
-      filterable: props.filterable || false
-    })),
+    columns:
+      React.Children.map(this.props.children, ({ props }) => ({
+        accessor: props.accessor || false,
+        label: props.children,
+        sortable: props.sortable || false,
+        filterable: props.filterable || false
+      })) || [],
     shouldUpdateParent: true
   }
 
@@ -28,7 +50,7 @@ export class HeaderData extends React.Component {
 
     this.setState(
       { shouldUpdateParent: false },
-      setHeaderData({ columns: this.state.columns })
+      () => setHeaderData && setHeaderData({ columns: this.state.columns })
     )
   }
 
@@ -36,13 +58,7 @@ export class HeaderData extends React.Component {
     this.state.shouldUpdateParent && this.setParentData()
   }
 
-  componentDidUpdate() {
-    this.state.shouldUpdateParent && this.setParentData()
-  }
-
   render() {
-    return (
-      <div className={this.props.className || null}>{this.props.children}</div>
-    )
+    return null
   }
 }
