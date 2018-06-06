@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from 'react-testing-library'
-import { Table } from '..'
+import { Table, TableHeaderRow, TableHeader } from '..'
 
 const initializeTable = props => {
   const data = [{ id: 1, animal: 'dog' }, { id: 2, animal: 'cat' }]
@@ -44,11 +44,28 @@ test('uses render prop', () => {
   expect(mockRender).toHaveBeenCalledTimes(1)
 })
 
-test('uses children prop', () => {
-  const children = jest.fn()
-  render(<Table>{children()}</Table>)
+test('uses children function', () => {
+  const children = jest.fn(() => <div>Value</div>)
+  render(<Table>{children}</Table>)
 
   expect(children).toHaveBeenCalledTimes(1)
+})
+
+test('uses children prop', () => {
+  const Children = jest.fn(() => <div>Value</div>)
+  render(
+    <Table>
+      <Children />
+    </Table>
+  )
+
+  expect(Children).toHaveBeenCalledTimes(1)
+})
+
+test('no children', () => {
+  const { container } = render(<Table />)
+
+  expect(container.innerHTML).toBe('')
 })
 
 test('handles multiple children', () => {
@@ -321,6 +338,9 @@ test('sorting column - multiple select', () => {
   tableProps.handleSort('animal', true)
   const nextProps = getNextProps()
   expect(nextProps.rows[0].rowData[0].data).toBe('cat')
+  nextProps.handleSort('animal', true)
+
+  expect(nextProps.rows[0].rowData[0].data).toBe('cat')
 })
 
 test('filter column ', () => {
@@ -332,4 +352,66 @@ test('filter column ', () => {
 
   expect(nextProps.rows.length).toBe(1)
   expect(nextProps.rows[0].rowData[0].data).toBe('dog')
+
+  nextProps.handleFilter('animal', 'do')
+
+  const nextProps2 = getNextProps()
+  expect(nextProps2.rows.length).toBe(1)
+  expect(nextProps.rows[0].rowData[0].data).toBe('dog')
+})
+
+test('handle select row', () => {
+  const data = [{ foo: 'bar' }]
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo">Foo</TableHeader>
+    </TableHeaderRow>
+  ))
+  render(<Table data={data} render={mockRender} />)
+  const { rows, selecting, handleRowSelect } = mockRender.mock.calls[1][0]
+  expect(selecting).toEqual([])
+  const rowKey = rows[0].rowKey
+  handleRowSelect(rowKey)
+
+  const {
+    selecting: [newSelecting]
+  } = mockRender.mock.calls[2][0]
+  expect(newSelecting).toBe(rowKey)
+
+  handleRowSelect(rowKey)
+
+  expect(mockRender.mock.calls[3][0].selecting).toEqual([])
+})
+
+test('handle select row all', () => {
+  const data = [{ foo: 'bar' }]
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo">Foo</TableHeader>
+    </TableHeaderRow>
+  ))
+  render(<Table data={data} render={mockRender} />)
+  const { selecting, handleRowSelect } = mockRender.mock.calls[1][0]
+  expect(selecting).toEqual([])
+
+  handleRowSelect('all')
+
+  const {
+    selecting: [newSelecting]
+  } = mockRender.mock.calls[2][0]
+  expect(newSelecting).toBe('all')
+
+  handleRowSelect('all')
+  expect(mockRender.mock.calls[3][0].selecting).toEqual([])
+})
+
+test('handle empty row', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <div>Label</div>
+    </TableHeaderRow>
+  ))
+
+  render(<Table data={[{ id: 1 }]} render={mockRender} />)
+  expect(mockRender.mock.calls[1][0].rows[0].rowData[0].type).toBe('empty-row')
 })

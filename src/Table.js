@@ -283,13 +283,11 @@ export class Table extends React.Component {
           ? React.createElement(component, props)
           : render
             ? render(props)
-            : children
-              ? typeof children === 'function'
-                ? children(props)
-                : React.Children.count(children) !== 0
-                  ? React.Children.only(children)
-                  : null
-              : null}
+            : typeof children === 'function'
+              ? children(props)
+              : !(React.Children.count(children) === 0)
+                ? React.Children.only(children)
+                : null}
       </TableProvider>
     )
   }

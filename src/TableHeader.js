@@ -17,7 +17,7 @@ export class TableHeader extends React.Component {
               {
                 className,
                 style,
-                ...(sortable
+                ...(sortable && typeof component !== 'string'
                   ? {
                       isSorting,
                       onClick: e => {
@@ -25,7 +25,19 @@ export class TableHeader extends React.Component {
                         return handleSort(accessor, isMultipleSelect)
                       }
                     }
-                  : {})
+                  : {}),
+                ...(sortable &&
+                  typeof component === 'string' &&
+                  isSorting && {
+                    issorting: isSorting.asc ? 'asc' : 'desc'
+                  }),
+                ...(sortable &&
+                  typeof component === 'string' && {
+                    onClick: e => {
+                      const isMultipleSelect = e.shiftKey
+                      return handleSort(accessor, isMultipleSelect)
+                    }
+                  })
               },
               children
             )
