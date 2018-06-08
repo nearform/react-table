@@ -69,7 +69,14 @@ test('toggles header values WITHOUT component', () => {
         return (
           <TableHeaderRow>
             <TableHeader accessor="foo" sortable>
-              Foo
+              {({ onClick, isSorting }) => (
+                <div
+                  onClick={onClick}
+                  className={isSorting ? (isSorting.asc ? 'asc' : 'desc') : ''}
+                >
+                  Foo
+                </div>
+              )}
             </TableHeader>
           </TableHeaderRow>
         )
@@ -78,7 +85,8 @@ test('toggles header values WITHOUT component', () => {
   )
 
   const header = getByText('Foo')
-  expect(header.getAttribute('class').trim()).toBe('sortable')
+
+  expect(header.getAttribute('class').trim()).toBe('')
 
   fireEvent(
     header,
@@ -88,7 +96,7 @@ test('toggles header values WITHOUT component', () => {
     })
   )
 
-  expect(header.getAttribute('class')).toBe('sortable asc')
+  expect(header.getAttribute('class')).toBe('asc')
 
   fireEvent(
     header,
@@ -98,11 +106,11 @@ test('toggles header values WITHOUT component', () => {
     })
   )
 
-  expect(header.getAttribute('class')).toBe('sortable desc')
+  expect(header.getAttribute('class')).toBe('desc')
 })
 
 test('passes sorting render props with element', () => {
-  const mockRender = jest.fn(() => <div>Foo</div>)
+  const mockRender = jest.fn(({ onClick }) => <div onClick={onClick}>Foo</div>)
   const { getByText } = renderIntoDocument(
     <Table
       render={tableProps => {
@@ -124,9 +132,8 @@ test('passes sorting render props with element', () => {
     })
   )
   expect(mockRender).toHaveBeenCalled()
-  expect(mockRender).toHaveBeenCalledWith({
-    isSorting: { asc: true, id: 'foo' }
-  })
+  const { isSorting } = mockRender.mock.calls[2][0]
+  expect(isSorting).toEqual({ asc: true, id: 'foo' })
 })
 
 test('passes sorting render props with component', () => {
@@ -163,4 +170,29 @@ test('passes sorting render props with component', () => {
   )
 
   expect(getByText(/SORTING/).innerHTML).toEqual('SORTING:true')
+})
+
+test('passes return props with render prop', () => {
+  const mockRender = jest.fn(({ onClick }) => <div onClick={onClick}>Foo</div>)
+  const { getByText } = renderIntoDocument(
+    <Table
+      render={tableProps => {
+        return (
+          <TableHeaderRow>
+            <TableHeader accessor="foo" sortable render={mockRender} />
+          </TableHeaderRow>
+        )
+      }}
+    />
+  )
+  fireEvent(
+    getByText('Foo'),
+    new MouseEvent('click', {
+      bubbles: true, // click events must bubble for React to see it
+      cancelable: true
+    })
+  )
+  expect(mockRender).toHaveBeenCalled()
+  const { isSorting } = mockRender.mock.calls[2][0]
+  expect(isSorting).toEqual({ asc: true, id: 'foo' })
 })

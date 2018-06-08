@@ -5,6 +5,7 @@ import VerticalTable from './VerticalTable'
 import HorizontalTable from './HorizontalTable'
 import EmptyTable from './EmptyTable'
 import MaterialTable from './MaterialTable'
+import BasicTable from './SimpleTable'
 
 import './Table.css'
 
@@ -22,6 +23,9 @@ class Demo extends React.Component {
             justifyContent: 'space-around'
           }}
         >
+          <button onClick={e => this.setState({ showing: 'basic' })}>
+            Show Basic
+          </button>
           <button onClick={e => this.setState({ showing: 'vertical' })}>
             Show Vertical
           </button>
@@ -55,6 +59,7 @@ class Demo extends React.Component {
         )}
 
         {this.state.showing === 'material' && <MaterialTable />}
+        {this.state.showing === 'basic' && <BasicTable />}
       </div>
     )
   }

@@ -7,16 +7,18 @@ class EmptyTable extends React.Component {
       <Table
         render={({ rows }) => (
           <div>
-            <TableHeaderRow className="tr th">
-              <TableHeader className="td" accessor="name" sortable filterable>
-                Name
-              </TableHeader>
-              <TableHeader className="td" accessor="job" sortable filterable>
-                Job
-              </TableHeader>
-              <TableHeader className="td" accessor="location" filterable>
-                Location
-              </TableHeader>
+            <TableHeaderRow>
+              <div className="tr th">
+                <TableHeader accessor="name" sortable filterable>
+                  <div className="td">Name</div>
+                </TableHeader>
+                <TableHeader accessor="job" sortable filterable>
+                  <div className="td">Job</div>
+                </TableHeader>
+                <TableHeader accessor="location" filterable>
+                  <div className="td">Location</div>
+                </TableHeader>
+              </div>
             </TableHeaderRow>
             <div>
               {!rows.length && (

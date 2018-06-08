@@ -3,7 +3,7 @@ import { TableConsumer } from './TableContext'
 
 export class TableHeaderRow extends React.Component {
   render() {
-    const { className, children, style, component } = this.props
+    const { children, component } = this.props
     return (
       <TableConsumer>
         {tableProps => {
@@ -13,17 +13,9 @@ export class TableHeaderRow extends React.Component {
                 {...this.props}
                 setHeaderData={tableProps ? tableProps.setHeaderData : null}
               />
-              {component ? (
-                React.createElement(component, {
-                  ...this.props,
-                  className,
-                  style
-                })
-              ) : (
-                <div style={style} className={className}>
-                  {children}
-                </div>
-              )}
+              {component
+                ? React.createElement(component, this.props)
+                : children}
             </React.Fragment>
           )
         }}

@@ -8,24 +8,26 @@ export class Table extends React.Component {
   state = {
     columns: this.props.columns,
     data: this.props.data.map(d => ({ ...d, _table_id: shortid.generate() })),
-    sorting: [],
-    filtering: [],
-    selecting: [],
     total: this.props.data.length,
-    totalNumberOfPages: 0,
     pageSize: this.props.pageSize,
     currentPage: this.props.currentPage,
     selectedPage: this.props.currentPage,
-    pageSizeOptions: this.props.pageSizeOptions
+    pageSizeOptions: this.props.pageSizeOptions,
+    sorting: this.props.sorting,
+    filtering: this.props.filtering,
+    selecting: this.props.selecting,
+    totalNumberOfPages: 0
   }
 
   static defaultProps = {
     columns: [],
-    accessors: [],
     data: [],
     currentPage: 1,
     pageSize: 8,
-    pageSizeOptions: [8, 16, 24, 48]
+    pageSizeOptions: [8, 16, 24, 48],
+    sorting: [],
+    filtering: [],
+    selecting: []
   }
 
   setTableState = (state, cb) => this.setState(state, cb)
