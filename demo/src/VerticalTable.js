@@ -81,17 +81,46 @@ class VerticalTable extends React.Component {
         }) => {
           return (
             <div className="table">
-              <TableHeaderRow className="tr th">
-                <TableHeader className="td" accessor="name" sortable filterable>
-                  Name
-                </TableHeader>
-                <TableHeader className="td" accessor="job" sortable filterable>
-                  Job
-                </TableHeader>
-                <TableHeader className="td" accessor="location" filterable>
-                  Location
-                </TableHeader>
-              </TableHeaderRow>
+              <div className="tr th">
+                <TableHeaderRow>
+                  <TableHeader accessor="name" sortable filterable>
+                    {({ isSorting, onClick, sortable }) => (
+                      <div
+                        className={`td ${
+                          sortable ? 'sortable' : 'no-sortable'
+                        } ${isSorting ? (isSorting.asc ? 'asc' : 'desc') : ''}`}
+                        onClick={onClick}
+                      >
+                        Name
+                      </div>
+                    )}
+                  </TableHeader>
+                  <TableHeader accessor="job" sortable filterable>
+                    {({ isSorting, onClick, sortable }) => (
+                      <div
+                        className={`td ${
+                          sortable ? 'sortable' : 'no-sortable'
+                        } ${isSorting ? (isSorting.asc ? 'asc' : 'desc') : ''}`}
+                        onClick={onClick}
+                      >
+                        Job
+                      </div>
+                    )}
+                  </TableHeader>
+                  <TableHeader accessor="location" filterable>
+                    {({ isSorting, onClick, sortable }) => (
+                      <div
+                        className={`td ${
+                          sortable ? 'sortable' : 'no-sortable'
+                        } ${isSorting ? (isSorting.asc ? 'asc' : 'desc') : ''}`}
+                        onClick={onClick}
+                      >
+                        Location
+                      </div>
+                    )}
+                  </TableHeader>
+                </TableHeaderRow>
+              </div>
               <div className="tr">
                 {columns.map(
                   (column, index) =>
