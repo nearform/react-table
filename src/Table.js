@@ -8,6 +8,7 @@ export class Table extends React.Component {
   state = {
     columns: this.props.columns,
     data: this.props.data.map(d => ({ ...d, _table_id: shortid.generate() })),
+    _data: this.props.data,
     total: this.props.data.length,
     pageSize: this.props.pageSize,
     currentPage: this.props.currentPage,
@@ -192,6 +193,67 @@ export class Table extends React.Component {
     })
   }
 
+  handleAddRow = item => {
+    this.setState({
+      data: [...this.props.data, item].map(d => ({
+        ...d,
+        _table_id: shortid.generate()
+      }))
+    })
+  }
+
+  handleDeleteRow = rowKey => {
+    this.setState(state => ({
+      data: state.data.filter(d => d._table_id !== rowKey),
+      total: state.total > 1 ? Number(state.total) - 1 : 0
+    }))
+  }
+
+  handleDeleteAllSelecting = () => {
+    if (this.state.selecting[0] === 'all') {
+      this.state.data.forEach(d => this.handleDeleteRow(d._table_id))
+    }
+    this.state.selecting.forEach(selected => this.handleDeleteRow(selected))
+    this.setState(state => {
+      return {
+        selecting: []
+      }
+    })
+  }
+
+  handleEditRow = (rowKey, updatedItem) => {
+    this.setState(state => {
+      return {
+        data: state.data.map(d => {
+          return d._table_id === rowKey
+            ? {
+                ...updatedItem,
+                _table_id: shortid.generate()
+              }
+            : d
+        })
+      }
+    })
+  }
+
+  handleEditColumn = (rowKey, accessor, updatedItem) => {
+    this.setState(state => {
+      return {
+        data: this.state.data.map(d => {
+          if (d._table_id === rowKey) {
+            return {
+              ...d,
+              _table_id: shortid.generate(),
+              [accessor]: updatedItem
+            }
+          }
+
+          return d
+        })
+      }
+    })
+  }
+
   getComputedProps = () => {
     const {
       columns,
@@ -263,7 +325,12 @@ export class Table extends React.Component {
       handlePageChange: this.handlePageChange,
       handlePageChangeBlur: this.handlePageChangeBlur,
       handlePageSizeChange: this.handlePageSizeChange,
-      handleRowSelect: this.handleRowSelect
+      handleRowSelect: this.handleRowSelect,
+      handleAddRow: this.handleAddRow,
+      handleDeleteRow: this.handleDeleteRow,
+      handleEditRow: this.handleEditRow,
+      handleEditColumn: this.handleEditColumn,
+      handleDeleteAllSelecting: this.handleDeleteAllSelecting
     }
   }
 
