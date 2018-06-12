@@ -415,3 +415,228 @@ test('handle empty row', () => {
   render(<Table data={[{ id: 1 }]} render={mockRender} />)
   expect(mockRender.mock.calls[1][0].rows[0].rowData[0].type).toBe('empty-row')
 })
+
+test('add row after initial render', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[{ id: 1, foo: 'Foo Table Data Value' }]}
+      render={mockRender}
+    />
+  )
+  const tableProps = mockRender.mock.calls[1][0]
+  expect(tableProps.handleAddRow).toBeDefined()
+  expect(typeof tableProps.handleAddRow).toBe('function')
+
+  tableProps.handleAddRow({ id: 2, foo: 'Foo Table Data Value Two' })
+
+  const tablePropsRows = mockRender.mock.calls[2][0].rows[1]
+
+  expect(tablePropsRows).toBeDefined()
+  expect(tablePropsRows.rowData[0].data).toBe('Foo Table Data Value Two')
+  expect(tablePropsRows.rowKey).toBeTruthy()
+})
+
+test('remove row after initial render', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[{ id: 1, foo: 'Foo Table Data Value' }]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+  // add row dynamically
+  tableProps.handleAddRow({ id: 2, foo: 'Foo Table Data Value Two' })
+
+  tableProps = mockRender.mock.calls[2][0]
+
+  // confirm row added
+  expect(tableProps.rows).toHaveLength(2)
+
+  // confirm handleDeleteRow is returned
+  expect(tableProps.handleDeleteRow).toBeDefined()
+  expect(typeof tableProps.handleDeleteRow).toBe('function')
+
+  // remove first row from table
+  tableProps.handleDeleteRow(tableProps.rows[0].rowKey)
+
+  tableProps = mockRender.mock.calls[3][0]
+
+  // confirm row removed
+  expect(tableProps.rows).toHaveLength(1)
+
+  // confirm only row is second element added
+  expect(tableProps.rows[0].rowData[0].data).toBe('Foo Table Data Value Two')
+})
+
+test('remove row sets correct total values', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[
+        { id: 1, foo: 'Foo Table Data Value' },
+        { id: 2, foo: 'Foo Table Data Value 2' },
+        { id: 3, foo: 'Foo Table Data Value 3' }
+      ]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+  expect(tableProps.total).toBe(3)
+
+  tableProps.handleDeleteRow(tableProps.rows[0].rowKey)
+  tableProps = mockRender.mock.calls[2][0]
+  expect(tableProps.total).toBe(2)
+})
+
+test('delete rows in selecting array', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[
+        { id: 1, foo: 'Foo Table Data Value' },
+        { id: 2, foo: 'Foo Table Data Value 2' },
+        { id: 3, foo: 'Foo Table Data Value 3' }
+      ]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+  expect(tableProps.total).toBe(3)
+  tableProps.handleRowSelect(tableProps.rows[0].rowKey)
+  tableProps.handleRowSelect(tableProps.rows[1].rowKey)
+  tableProps.handleRowSelect(tableProps.rows[2].rowKey)
+
+  tableProps = mockRender.mock.calls[4][0]
+  expect(tableProps.selecting).toHaveLength(3)
+  tableProps.handleDeleteAllSelecting()
+
+  tableProps = mockRender.mock.calls[8][0]
+  expect(tableProps.rows).toHaveLength(0)
+  expect(tableProps.total).toBe(0)
+  expect(tableProps.selecting).toHaveLength(0)
+})
+
+test('delete rows in selecting array with "all" set', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[
+        { id: 1, foo: 'Foo Table Data Value' },
+        { id: 2, foo: 'Foo Table Data Value 2' },
+        { id: 3, foo: 'Foo Table Data Value 3' }
+      ]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+  expect(tableProps.total).toBe(3)
+  tableProps.handleRowSelect('all')
+
+  tableProps = mockRender.mock.calls[2][0]
+  expect(tableProps.selecting[0]).toBe('all')
+  tableProps.handleDeleteAllSelecting()
+
+  tableProps = mockRender.mock.calls[7][0]
+  expect(tableProps.rows).toHaveLength(0)
+  expect(tableProps.total).toBe(0)
+  expect(tableProps.selecting).toHaveLength(0)
+})
+
+test('modify a row after initial render', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[
+        { id: 1, foo: 'Foo Table Data Value' },
+        { id: 2, foo: 'foo foo foo' }
+      ]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+
+  expect(tableProps.handleEditRow).toBeDefined()
+  expect(typeof tableProps.handleEditRow).toBe('function')
+
+  tableProps.handleEditRow(tableProps.rows[0].rowKey, {
+    id: 123,
+    foo: 'A new table value'
+  })
+  tableProps = mockRender.mock.calls[2][0]
+
+  expect(tableProps.rows[0].rowData[0].data).toBe('A new table value')
+})
+
+test('edit a column in a row', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+      <TableHeader accessor="modifyMe" sortable filterable>
+        Table Header 2
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  render(
+    <Table
+      data={[
+        { id: 1, foo: 'Foo Table Data Value', modifyMe: 'abc' },
+        { id: 2, foo: 'foo foo foo', modifyMe: '123' }
+      ]}
+      render={mockRender}
+    />
+  )
+  let tableProps = mockRender.mock.calls[1][0]
+  const rowKey = tableProps.rows[0].rowKey
+  tableProps.handleEditColumn(rowKey, 'modifyMe', 'modified column in a row')
+
+  tableProps = mockRender.mock.calls[2][0]
+  console.log(JSON.stringify(tableProps.rows, null, 2))
+  expect(tableProps.rows[0].rowData[1].data).toBe('modified column in a row')
+})

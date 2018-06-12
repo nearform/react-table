@@ -282,7 +282,8 @@ class MaterialTable extends React.Component {
               hasPrevPage,
               handlePrevPage,
               handleNextPage,
-              handlePageSizeChange
+              handlePageSizeChange,
+              handleDeleteAllSelecting
             }) => {
               return (
                 <React.Fragment>
@@ -311,11 +312,14 @@ class MaterialTable extends React.Component {
                       {selecting.length > 0 && (
                         <React.Fragment>
                           <p style={{ fontSize: '0.875rem', margin: '0 2em' }}>
-                            <span>Number of rows selected: </span>
                             <span style={{ fontWeight: 'bold' }}>
-                              {selecting[0] === 'all'
-                                ? rows.length
-                                : selecting.length}
+                              {selecting[0] === 'all' ? (
+                                <span>All rows selected.</span>
+                              ) : (
+                                <span>
+                                  Number of rows selected: {selecting.length}
+                                </span>
+                              )}
                             </span>
                           </p>
                           <div
@@ -330,7 +334,7 @@ class MaterialTable extends React.Component {
                               type="button"
                               className="ripple-button"
                               onClick={e => {
-                                console.log('caught delete click')
+                                handleDeleteAllSelecting()
                               }}
                             >
                               <img src={DeleteIcon} alt="delete-button" />
@@ -463,7 +467,7 @@ class MaterialTable extends React.Component {
 
                       <span style={{ margin: '0 2em' }}>
                         {currentPage * pageSize - pageSize + 1}-
-                        {currentPage * pageSize > total
+                        {currentPage * pageSize > total && total > 0
                           ? total
                           : currentPage * pageSize}{' '}
                         of {total}
