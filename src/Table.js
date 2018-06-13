@@ -145,10 +145,7 @@ export class Table extends React.Component {
     this.setState(state => ({
       pageSize,
       currentPage: 1,
-      selectedPage: 1,
-      selecting: [],
-      sorting: [],
-      filtering: []
+      selectedPage: 1
     }))
   }
 
