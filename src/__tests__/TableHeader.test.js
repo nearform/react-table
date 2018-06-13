@@ -1,6 +1,13 @@
 import React from 'react'
 import { Table, TableHeaderRow, TableHeader } from '..'
-import { render, renderIntoDocument, fireEvent } from 'react-testing-library'
+import {
+  render,
+  renderIntoDocument,
+  fireEvent,
+  cleanup
+} from 'react-testing-library'
+
+afterEach(cleanup)
 
 test('renders correctly with no props', () => {
   render(<TableHeader />)

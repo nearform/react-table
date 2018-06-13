@@ -637,6 +637,6 @@ test('edit a column in a row', () => {
   tableProps.handleEditColumn(rowKey, 'modifyMe', 'modified column in a row')
 
   tableProps = mockRender.mock.calls[2][0]
-  console.log(JSON.stringify(tableProps.rows, null, 2))
+
   expect(tableProps.rows[0].rowData[1].data).toBe('modified column in a row')
 })
