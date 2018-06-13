@@ -1,10 +1,47 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import shortid from 'shortid'
 import orderBy from 'lodash.orderby'
 import conforms from 'lodash.conforms'
 import { TableProvider } from './TableContext'
 
 export class Table extends React.Component {
+  static propTypes = {
+    columns: PropTypes.arrayOf(
+      PropTypes.shape({
+        accessor: PropTypes.string
+      })
+    ),
+    data: PropTypes.array,
+    currentPage: PropTypes.number,
+    pageSize: PropTypes.number,
+    pageSizeOptions: PropTypes.arrayOf(PropTypes.number),
+    sorting: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        asc: PropTypes.bool
+      })
+    ),
+    filtering: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        value: PropTypes.any
+      })
+    ),
+    selecting: PropTypes.arrayOf(PropTypes.string)
+  }
+
+  static defaultProps = {
+    columns: [],
+    data: [],
+    currentPage: 1,
+    pageSize: 8,
+    pageSizeOptions: [8, 16, 24, 48],
+    sorting: [],
+    filtering: [],
+    selecting: []
+  }
+
   state = {
     columns: this.props.columns,
     data: this.props.data.map(d => ({ ...d, _table_id: shortid.generate() })),
@@ -18,17 +55,6 @@ export class Table extends React.Component {
     filtering: this.props.filtering,
     selecting: this.props.selecting,
     totalNumberOfPages: 0
-  }
-
-  static defaultProps = {
-    columns: [],
-    data: [],
-    currentPage: 1,
-    pageSize: 8,
-    pageSizeOptions: [8, 16, 24, 48],
-    sorting: [],
-    filtering: [],
-    selecting: []
   }
 
   setTableState = (state, cb) => this.setState(state, cb)

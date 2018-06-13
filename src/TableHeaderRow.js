@@ -1,7 +1,17 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { TableConsumer } from './TableContext'
 
 export class TableHeaderRow extends React.Component {
+  static propTypes = {
+    children: PropTypes.oneOfType([
+      PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+      ),
+      PropTypes.element
+    ]),
+    component: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+  }
   render() {
     const { children, component } = this.props
     return (
