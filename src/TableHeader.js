@@ -5,7 +5,11 @@ import { TableConsumer } from './TableContext'
 export class TableHeader extends React.Component {
   static propTypes = {
     render: PropTypes.func,
-    component: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    component: PropTypes.oneOfType([
+      PropTypes.element,
+      PropTypes.func,
+      PropTypes.string
+    ]),
     children: PropTypes.oneOfType([
       PropTypes.element,
       PropTypes.func,

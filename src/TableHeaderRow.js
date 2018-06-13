@@ -10,7 +10,11 @@ export class TableHeaderRow extends React.Component {
       ),
       PropTypes.element
     ]),
-    component: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+    component: PropTypes.oneOfType([
+      PropTypes.element,
+      PropTypes.func,
+      PropTypes.string
+    ])
   }
   render() {
     const { children, component } = this.props
