@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "react-nf-table React component",
   "private": true,
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "module": "es/index.js",
   "files": [
     "css",
     "es",
-    "lib",
+    "src",
     "umd"
   ],
   "scripts": {
