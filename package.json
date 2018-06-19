@@ -6,7 +6,6 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
-    "css",
     "es",
     "lib",
     "umd"
@@ -42,7 +41,7 @@
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.1.0",
     "jest": "^23.0.0",
-    "nwb": "0.21.x",
+    "nwb": "^0.22.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-testing-library": "^3.1.3"
