@@ -13,12 +13,14 @@
   ],
   "scripts": {
     "build": "nwb build-react-component",
+    "build:no-demo": "nwb build-react-component --no-demo",
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
-    "test:jest": "jest"
+    "test:jest": "jest",
+    "postinstall": "npm run build:no-demo"
   },
   "dependencies": {
     "lodash.conforms": "^4.5.0",
