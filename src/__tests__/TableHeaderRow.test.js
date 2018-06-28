@@ -83,18 +83,21 @@ describe('HeaderData', () => {
       columns: [
         {
           accessor: 'foo',
+          children: 'Foo',
           label: 'Foo',
           sortable: false,
           filterable: true
         },
         {
           accessor: false,
+          children: 'Nothing',
           label: 'Nothing',
           sortable: false,
           filterable: false
         },
         {
           accessor: 'bar',
+          children: 'Bar',
           label: 'Bar',
           sortable: true,
           filterable: false

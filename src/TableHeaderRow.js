@@ -42,6 +42,7 @@ export class HeaderData extends React.Component {
   state = {
     columns:
       React.Children.map(this.props.children, ({ props }) => ({
+        ...props,
         accessor: props.accessor || false,
         label: props.children,
         sortable: props.sortable || false,
