@@ -1,31 +1,27 @@
-# react-nf-table
+# React Table
 
-[![Travis][build-badge]][build]
-[![npm package][npm-badge]][npm]
-[![Coveralls][coveralls-badge]][coveralls]
+[![npm version][0]][1]
 
-[build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square
-[build]: https://travis-ci.org/user/repo
-[npm-badge]: https://img.shields.io/npm/v/npm-package.png?style=flat-square
-[npm]: https://www.npmjs.org/package/npm-package
-[coveralls-badge]: https://img.shields.io/coveralls/user/repo/master.png?style=flat-square
-[coveralls]: https://coveralls.io/github/user/repo
+[0]: https://img.shields.io/npm/v/@nearform/react-table.png?style=flat-square
+[1]: https://www.npmjs.com/package/@nearform/react-table
 
 ## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Guide](#guide)
-  - [Basics](#basics)
-- [Components](#components)
-- [`<Table>`](#table)
-  - [Component State](#component-state)
-  - [Component Actions](#component-actions)
-  - [Computed Props](#computed-props)
-  - [`<TableHeaderRow>`](#tableheaderrow)
-  - [`<HeaderData>`](#headerdata)
-    - [`<TableHeader>`](#tableheader)
+- [React Table](#react-table)
+  - [Table of Contents](#table-of-contents)
+  - [Guide](#guide)
+    - [Basics](#basics)
+  - [Components](#components)
+  - [`<Table>`](#table)
+    - [Component State](#component-state)
+    - [Component Actions](#component-actions)
+    - [Computed Props](#computed-props)
+    - [`<TableHeaderRow>`](#tableheaderrow)
+    - [`<HeaderData>`](#headerdata)
+      - [`<TableHeader>`](#tableheader)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -52,7 +48,7 @@ The table may look like
 
 ```js
 import React from 'react'
-import { Table, TableHeaderRow, TableHeader } from 'react-nf-table'
+import { Table, TableHeaderRow, TableHeader } from '@nearform/react-table'
 
 const data = [
   {
