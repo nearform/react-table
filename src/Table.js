@@ -42,6 +42,30 @@ export class Table extends React.Component {
     selecting: []
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.data !== state._data) {
+      return {
+        columns: props.columns,
+        data: props.data.map(d => ({
+          ...d,
+          _table_id: shortid.generate()
+        })),
+        _data: props.data,
+        total: props.data.length,
+        pageSize: props.pageSize,
+        currentPage: props.currentPage,
+        selectedPage: props.currentPage,
+        pageSizeOptions: props.pageSizeOptions,
+        sorting: props.sorting,
+        filtering: props.filtering,
+        selecting: props.selecting,
+        totalNumberOfPages: 0
+      }
+    }
+
+    return state
+  }
+
   state = {
     columns: this.props.columns,
     data: this.props.data.map(d => ({ ...d, _table_id: shortid.generate() })),
