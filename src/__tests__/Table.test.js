@@ -640,3 +640,38 @@ test('edit a column in a row', () => {
 
   expect(tableProps.rows[0].rowData[1].data).toBe('modified column in a row')
 })
+
+test('refresh state when data changes', () => {
+  const mockRender = jest.fn(() => (
+    <TableHeaderRow>
+      <TableHeader accessor="foo" sortable filterable>
+        Table Header 1
+      </TableHeader>
+      <TableHeader accessor="modifyMe" sortable filterable>
+        Table Header 2
+      </TableHeader>
+    </TableHeaderRow>
+  ))
+
+  const data = [
+    { id: 1, foo: 'Foo Table Data Value 1' },
+    { id: 2, foo: 'Foo Table Data Value 2' }
+  ]
+
+  const updatedData = [
+    { id: 1, foo: 'Foo Table Data Value 1' },
+    { id: 2, foo: 'Foo Table Data Value 2' },
+    { id: 2, foo: 'Foo Table Data Value 3' },
+    { id: 2, foo: 'Foo Table Data Value 4' },
+    { id: 2, foo: 'Foo Table Data Value 5' }
+  ]
+
+  const { rerender } = render(<Table data={data} render={mockRender} />)
+  const tableProps = mockRender.mock.calls[1][0]
+  expect(tableProps._data).toEqual(data)
+
+  rerender(<Table data={updatedData} render={mockRender} />)
+
+  const updatedDataProps = mockRender.mock.calls[2][0]
+  expect(updatedDataProps._data).toEqual(updatedData)
+})
